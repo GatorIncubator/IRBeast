@@ -1,3 +1,5 @@
+![IRBeast](static/beast.png "The IRBeast Logo")
+
 # IRBeast
 
 IRBeast is a software tool developed to help student researchers ensure that they create a successful IRB proposal.
