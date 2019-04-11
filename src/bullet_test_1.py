@@ -1,6 +1,8 @@
 from bullet import Check, keyhandler
 from bullet.charDef import NEWLINE_KEY
 
+from itertools import islice
+
 
 # taken from bullet/examples/check.py
 class MinMaxCheck(Check):
@@ -21,34 +23,25 @@ class MinMaxCheck(Check):
             1 for c in self.checked if c) <= self.max_selections
 
 
-client = MinMaxCheck(
-    prompt="Select Everything You Have Done\n" +
-    "Press Enter When You Are Done Selecting",
-    min_selections=0,
-    max_selections=2,
-    choices=[
-        "Question 1: insert text here",
-        "Question 2: insert text here",
-        "Question 3: insert text here"
-    ],
-    margin=2
-)
+def get_choices(file_path):
+    try:
+        file = open(file_path,"r")
+    except:
+        return ["File '"+file_path+"' Not Found"]
+    ret = [line.replace("\n","") for line in file]
+    while ('' in ret):
+        ret.remove("")
+    return ret
 
-result = client.launch()
-print(result)
+#print(get_choices("../checklists/checklist1.txt"))
 
-client = MinMaxCheck(
-    prompt="Select Everything You Have Done\n" +
-    "Press Enter When You Are Done Selecting",
-    min_selections=0,
-    choices=[
-        "New Question 1: insert text here",
-        "New Question 2: insert text here",
-        "New Question 3: insert text here"
-    ],
-    margin=2
-)
-
-result = client.launch()
-
-print(result)
+if __name__ == '__main__':
+    file_path = str(input("Enter the path to the checklist\n"))
+    client = MinMaxCheck(
+        prompt="Select Everything You Have Done\n" +
+        "Press Enter When You Are Done Selecting",
+        choices=get_choices(file_path),
+        margin=2
+    )
+    result = client.launch()
+    print(result)
