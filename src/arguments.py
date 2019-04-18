@@ -7,9 +7,33 @@ def parse(args):
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
-    irbparser.add_argument(
-        "--checklists", help="prints checklist items", action="store_true"
+    irb_parser.add_argument(
+        "--login", action="store_true"
     )
+
+    irb_parser.add_argument(
+        "--username", type=str, help="username to log into AWS database"
+    )
+
+    irb_parser.add_argument(
+        "--password", type=str, help="password to log into AWS database"
+    )
+
+    irb_parser.add_argument(
+        "--checklists", type=str, help="path to file with checklist items")
+
     irb_arguments_finished = irb_parser.parse_args(args)
-    irb_arguments_finished = []
+
     return irb_arguments_finished
+
+def is_valid_login(args):
+    if args.username != None and args.password != None:
+        return True
+    else:
+        return False
+
+def verify(args):
+    verified = True
+    if args.login:
+        verified = is_valid_login(args)
+    return verified
