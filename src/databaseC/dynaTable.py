@@ -6,6 +6,14 @@ dynamodb = boto3.resource('dynamodb', region_name = "us-west-2", endpoint_url= "
 table = dynamob .create_table(
     TableName = "Irb",
     Keyschema = [
+    {
+        'AttributeName: 'studentIDNumber',
+        'KeyType': 'HASH'
+    }
+    {
+        'AttributeName: 'name",
+        'KeyType': 'sort'
+    }
 
     ]
 )
