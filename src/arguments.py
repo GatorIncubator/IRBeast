@@ -26,11 +26,13 @@ def parse(args):
 
     return irb_arguments_finished
 
+
 def is_valid_login(args):
-    if args.username != None and args.password != None:
+    if args.username is not None and args.password is not None:
         return True
     else:
         return False
+
 
 def verify(args):
     verified = True
