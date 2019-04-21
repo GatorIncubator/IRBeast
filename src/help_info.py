@@ -1,9 +1,9 @@
-# COMMANDS = ["file","login","checklist","submit","quit","help"]
+# COMMANDS = ["file","logout","checklist","submit","quit","help"]
 
 FILE_DESCRIPTION = "Allows the user to input the name of the file that " + \
     "contains the checklist to be completed"
-LOGIN_DESCRIPTION = "Allows the user to log into the database and check " + \
-    "submitted proposals"
+LOGOUT_DESCRIPTION = "Allows the user to logout of the database to " + \
+    "switch accounts"
 CHECKLIST_DESCRIPTION = "Allows the user to fill out the checklist " + \
     "supplied via the 'File' command"
 SUBMIT_DESCRIPTION = "Submits the completed checklist and IRB proposal file"
@@ -14,8 +14,8 @@ HELP_DESCRIPTION = "Dislays all possible commands with descriptions or " + \
 FILE_INFO = {
     "command_name": "File", "description": FILE_DESCRIPTION
 }
-LOGIN_INFO = {
-    "command_name": "Login", "description": LOGIN_DESCRIPTION
+LOGOUT_INFO = {
+    "command_name": "Logout", "description": LOGOUT_DESCRIPTION
 }
 CHECKLIST_INFO = {
     "command_name": "Checklist", "description": CHECKLIST_DESCRIPTION
@@ -33,14 +33,14 @@ HELP_INFO = {
 
 INFO = (
     FILE_INFO,
-    LOGIN_INFO,
+    LOGOUT_INFO,
     CHECKLIST_INFO,
     SUBMIT_INFO,
     QUIT_INFO,
     HELP_INFO
 )
 
-INFO_STRINGS = ("file", "login", "checklist", "submit", "quit", "help")
+INFO_STRINGS = ("file", "logout", "checklist", "submit", "quit", "help")
 
 
 def get_help(command=None):
@@ -48,7 +48,7 @@ def get_help(command=None):
         for i in INFO:
             print(
                 "Command:", i['command_name'],
-                "| Description:", i['description']
+                "| Description:", i['description'], "\n"
             )
     else:
         index = INFO_STRINGS.index(command.lower())
