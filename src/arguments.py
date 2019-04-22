@@ -20,7 +20,11 @@ def parse(args):
     )
 
     irb_parser.add_argument(
-        "--checklists", type=str, help="path to file with checklist items"
+        "--checklist", action="store_true", help="run the bullet checklist"
+    )
+
+    irb_parser.add_argument(
+        "--file", type=str, help="path to the file for the checklist"
     )
 
     irb_parser.add_argument(
@@ -39,8 +43,19 @@ def is_valid_login(args):
         return False
 
 
+def is_valid_file(args):
+    if args.file is not None:
+        try:
+            open(args.file)
+        except FileNotFoundError:  # noqa: F821
+            print("File Not Found")
+            return False
+        return True
+    return False
+
+
 def is_valid_submit(args):
-    if is_valid_login(args) and args.submit is not None:
+    if args.submit is not None:
         try:
             open(args.submit)
         except FileNotFoundError:  # noqa: F821
@@ -54,6 +69,8 @@ def verify(args):
     verified = True
     if args.login:
         verified = is_valid_login(args)
-    if args.submit:
-        verified
+    if args.file:
+        verified = is_valid_file(args)
+    # if args.submit:
+    #     verified = is_valid_submit(args)
     return verified

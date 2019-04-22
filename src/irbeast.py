@@ -112,8 +112,17 @@ def main():
             args = repl_command()
     else:
         if arguments.verify(args):
-            if login_user(args.username, args.password):
+            if args.login is not None and login_user(
+                args.username, args.password
+            ):
                 print("Logged In")
+                if args.checklist is not None:
+                    if args.file is not None:
+                        checklist(args.file)
+                    else:
+                        print("Please Supply a Checklist File")
+                if args.submit is not None:
+                    submit()
             else:
                 print("Invalid Login Info")
                 sys.exit()
