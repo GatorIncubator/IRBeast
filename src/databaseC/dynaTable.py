@@ -9,11 +9,11 @@ table = dynamodb.create_table(
     TableName="Irb",
     Keyschema=[
         {
-            'AttributeName': studentIDNumber,
+            'AttributeName': studentIDNumber,  # noqa: F821
             'KeyType': 'HASH'
         },
         {
-            'AttributeName': name,
+            'AttributeName': name,  # noqa: F821
             'KeyType': 'sort'
         }
     ]

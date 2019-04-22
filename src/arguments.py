@@ -8,7 +8,7 @@ def parse(args):
     )
 
     irb_parser.add_argument(
-        "--login", action="store_true"
+        "--login", action="store_true", help="login user to the AWS database"
     )
 
     irb_parser.add_argument(
@@ -20,7 +20,12 @@ def parse(args):
     )
 
     irb_parser.add_argument(
-        "--checklists", type=str, help="path to file with checklist items")
+        "--checklists", type=str, help="path to file with checklist items"
+    )
+
+    irb_parser.add_argument(
+        "--submit", type=str, help="path to the file(s) to submit"
+    )
 
     irb_arguments_finished = irb_parser.parse_args(args)
 
@@ -34,8 +39,21 @@ def is_valid_login(args):
         return False
 
 
+def is_valid_submit(args):
+    if is_valid_login(args) and args.submit is not None:
+        try:
+            open(args.submit)
+        except FileNotFoundError:  # noqa: F821
+            print("File Not Found")
+            return False
+        return True
+    return False
+
+
 def verify(args):
     verified = True
     if args.login:
         verified = is_valid_login(args)
+    if args.submit:
+        verified
     return verified
