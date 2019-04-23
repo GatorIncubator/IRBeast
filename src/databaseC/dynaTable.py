@@ -17,7 +17,8 @@ table = dynamodb.create_table(
     ],
     ProvisionedThroughput={
     "ReadCapacityUnits": 10,
-    "WriteCapacityUnits": 10},
+    "WriteCapacityUnits": 10
+    }
 )
 
 print("Table status:", table.table_status)

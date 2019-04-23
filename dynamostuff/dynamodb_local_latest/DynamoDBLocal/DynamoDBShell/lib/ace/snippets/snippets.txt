@@ -1,0 +1,579 @@
+snippet batchGetItem
+var params = {
+  RequestItems: { // required
+    someKey: {
+      Keys: [ // required
+        {
+          someKey: {
+            B: 'BASE64_ENCODED_STRING',
+            BS: [
+              'BASE64_ENCODED_STRING',
+              // ... more items ...
+            ],
+            N: 'STRING_VALUE',
+            NS: [
+              'STRING_VALUE',
+              // ... more items ...
+            ],
+            S: 'STRING_VALUE',
+            SS: [
+              'STRING_VALUE',
+              // ... more items ...
+            ],
+          },
+          // anotherKey: ...
+        },
+        // ... more items ...
+      ],
+      AttributesToGet: [
+        'STRING_VALUE',
+        // ... more items ...
+      ],
+      ConsistentRead: true || false,
+    },
+    // anotherKey: ...
+  },
+  ReturnConsumedCapacity: 'INDEXES | TOTAL | NONE',
+};
+dynamodb.batchGetItem(params, function(err, data) {
+  if (err) console.log(err, err.stack); // an error occurred
+  else     console.log(data);           // successful response
+}
+snippet batchWriteItem
+var params = {
+  RequestItems: { // required
+    someKey: [
+      {
+        DeleteRequest: {
+          Key: { // required
+            someKey: {
+              B: 'BASE64_ENCODED_STRING',
+              BS: [
+                'BASE64_ENCODED_STRING',
+                // ... more items ...
+              ],
+              N: 'STRING_VALUE',
+              NS: [
+                'STRING_VALUE',
+                // ... more items ...
+              ],
+              S: 'STRING_VALUE',
+              SS: [
+                'STRING_VALUE',
+                // ... more items ...
+              ],
+            },
+            // anotherKey: ...
+          },
+        },
+        PutRequest: {
+          Item: { // required
+            someKey: {
+              B: 'BASE64_ENCODED_STRING',
+              BS: [
+                'BASE64_ENCODED_STRING',
+                // ... more items ...
+              ],
+              N: 'STRING_VALUE',
+              NS: [
+                'STRING_VALUE',
+                // ... more items ...
+              ],
+              S: 'STRING_VALUE',
+              SS: [
+                'STRING_VALUE',
+                // ... more items ...
+              ],
+            },
+            // anotherKey: ...
+          },
+        },
+      },
+      // ... more items ...
+    ],
+    // anotherKey: ...
+  },
+  ReturnConsumedCapacity: 'INDEXES | TOTAL | NONE',
+  ReturnItemCollectionMetrics: 'SIZE | NONE',
+};
+dynamodb.batchWriteItem(params, function(err, data) {
+  if (err) console.log(err, err.stack); // an error occurred
+  else     console.log(data);           // successful response
+}
+
+snippet createTable
+var params = {
+  AttributeDefinitions: [ // required
+    {
+      AttributeName: 'STRING_VALUE', // required
+      AttributeType: 'S | N | B', // required
+    },
+    // ... more items ...
+  ],
+  KeySchema: [ // required
+    {
+      AttributeName: 'STRING_VALUE', // required
+      KeyType: 'HASH | RANGE', // required
+    },
+    // ... more items ...
+  ],
+  ProvisionedThroughput: { // required
+    ReadCapacityUnits: 0, // required
+    WriteCapacityUnits: 0, // required
+  },
+  TableName: 'STRING_VALUE', // required
+  GlobalSecondaryIndexes: [
+    {
+      IndexName: 'STRING_VALUE', // required
+      KeySchema: [ // required
+        {
+          AttributeName: 'STRING_VALUE', // required
+          KeyType: 'HASH | RANGE', // required
+        },
+        // ... more items ...
+      ],
+      Projection: { // required
+        NonKeyAttributes: [
+          'STRING_VALUE',
+          // ... more items ...
+        ],
+        ProjectionType: 'ALL | KEYS_ONLY | INCLUDE',
+      },
+      ProvisionedThroughput: { // required
+        ReadCapacityUnits: 0, // required
+        WriteCapacityUnits: 0, // required
+      },
+    },
+    // ... more items ...
+  ],
+  LocalSecondaryIndexes: [
+    {
+      IndexName: 'STRING_VALUE', // required
+      KeySchema: [ // required
+        {
+          AttributeName: 'STRING_VALUE', // required
+          KeyType: 'HASH | RANGE', // required
+        },
+        // ... more items ...
+      ],
+      Projection: { // required
+        NonKeyAttributes: [
+          'STRING_VALUE',
+          // ... more items ...
+        ],
+        ProjectionType: 'ALL | KEYS_ONLY | INCLUDE',
+      },
+    },
+    // ... more items ...
+  ],
+};
+dynamodb.createTable(params, function(err, data) {
+  if (err) console.log(err, err.stack); // an error occurred
+  else     console.log(data);           // successful response
+}
+snippet deleteItem
+var params = {
+  Key: { // required
+    someKey: {
+      B: 'BASE64_ENCODED_STRING',
+      BS: [
+        'BASE64_ENCODED_STRING',
+        // ... more items ...
+      ],
+      N: 'STRING_VALUE',
+      NS: [
+        'STRING_VALUE',
+        // ... more items ...
+      ],
+      S: 'STRING_VALUE',
+      SS: [
+        'STRING_VALUE',
+        // ... more items ...
+      ],
+    },
+    // anotherKey: ...
+  },
+  TableName: 'STRING_VALUE', // required
+  Expected: {
+    someKey: {
+      Exists: true || false,
+      Value: {
+        B: 'BASE64_ENCODED_STRING',
+        BS: [
+          'BASE64_ENCODED_STRING',
+          // ... more items ...
+        ],
+        N: 'STRING_VALUE',
+        NS: [
+          'STRING_VALUE',
+          // ... more items ...
+        ],
+        S: 'STRING_VALUE',
+        SS: [
+          'STRING_VALUE',
+          // ... more items ...
+        ],
+      },
+    },
+    // anotherKey: ...
+  },
+  ReturnConsumedCapacity: 'INDEXES | TOTAL | NONE',
+  ReturnItemCollectionMetrics: 'SIZE | NONE',
+  ReturnValues: 'NONE | ALL_OLD | UPDATED_OLD | ALL_NEW | UPDATED_NEW',
+};
+dynamodb.deleteItem(params, function(err, data) {
+  if (err) console.log(err, err.stack); // an error occurred
+  else     console.log(data);           // successful response
+}
+
+snippet deleteTable
+var params = {
+  TableName: 'STRING_VALUE', // required
+};
+dynamodb.deleteTable(params, function(err, data) {
+  if (err) console.log(err, err.stack); // an error occurred
+  else     console.log(data);           // successful response
+}
+
+snippet describeTable
+var params = {
+  TableName: 'STRING_VALUE', // required
+};
+dynamodb.describeTable(params, function(err, data) {
+  if (err) console.log(err, err.stack); // an error occurred
+  else     console.log(data);           // successful response
+}
+
+snippet getItem
+var params = {
+  Key: { // required
+    someKey: {
+      B: 'BASE64_ENCODED_STRING',
+      BS: [
+        'BASE64_ENCODED_STRING',
+        // ... more items ...
+      ],
+      N: 'STRING_VALUE',
+      NS: [
+        'STRING_VALUE',
+        // ... more items ...
+      ],
+      S: 'STRING_VALUE',
+      SS: [
+        'STRING_VALUE',
+        // ... more items ...
+      ],
+    },
+    // anotherKey: ...
+  },
+  TableName: 'STRING_VALUE', // required
+  AttributesToGet: [
+    'STRING_VALUE',
+    // ... more items ...
+  ],
+  ConsistentRead: true || false,
+  ReturnConsumedCapacity: 'INDEXES | TOTAL | NONE',
+};
+dynamodb.getItem(params, function(err, data) {
+  if (err) console.log(err, err.stack); // an error occurred
+  else     console.log(data);           // successful response
+}
+snippet listTables
+var params = {
+  ExclusiveStartTableName: 'STRING_VALUE',
+  Limit: 0,
+};
+dynamodb.listTables(params, function(err, data) {
+  if (err) console.log(err, err.stack); // an error occurred
+  else     console.log(data);           // successful response
+}
+snippet putItem
+var params = {
+  Item: { // required
+    someKey: {
+      B: 'BASE64_ENCODED_STRING',
+      BS: [
+        'BASE64_ENCODED_STRING',
+        // ... more items ...
+      ],
+      N: 'STRING_VALUE',
+      NS: [
+        'STRING_VALUE',
+        // ... more items ...
+      ],
+      S: 'STRING_VALUE',
+      SS: [
+        'STRING_VALUE',
+        // ... more items ...
+      ],
+    },
+    // anotherKey: ...
+  },
+  TableName: 'STRING_VALUE', // required
+  Expected: {
+    someKey: {
+      Exists: true || false,
+      Value: {
+        B: 'BASE64_ENCODED_STRING',
+        BS: [
+          'BASE64_ENCODED_STRING',
+          // ... more items ...
+        ],
+        N: 'STRING_VALUE',
+        NS: [
+          'STRING_VALUE',
+          // ... more items ...
+        ],
+        S: 'STRING_VALUE',
+        SS: [
+          'STRING_VALUE',
+          // ... more items ...
+        ],
+      },
+    },
+    // anotherKey: ...
+  },
+  ReturnConsumedCapacity: 'INDEXES | TOTAL | NONE',
+  ReturnItemCollectionMetrics: 'SIZE | NONE',
+  ReturnValues: 'NONE | ALL_OLD | UPDATED_OLD | ALL_NEW | UPDATED_NEW',
+};
+dynamodb.putItem(params, function(err, data) {
+  if (err) console.log(err, err.stack); // an error occurred
+  else     console.log(data);           // successful response
+}
+snippet query
+var params = {
+  TableName: 'STRING_VALUE', // required
+  AttributesToGet: [
+    'STRING_VALUE',
+    // ... more items ...
+  ],
+  ConsistentRead: true || false,
+  ExclusiveStartKey: {
+    someKey: {
+      B: 'BASE64_ENCODED_STRING',
+      BS: [
+        'BASE64_ENCODED_STRING',
+        // ... more items ...
+      ],
+      N: 'STRING_VALUE',
+      NS: [
+        'STRING_VALUE',
+        // ... more items ...
+      ],
+      S: 'STRING_VALUE',
+      SS: [
+        'STRING_VALUE',
+        // ... more items ...
+      ],
+    },
+    // anotherKey: ...
+  },
+  IndexName: 'STRING_VALUE',
+  KeyConditions: {
+    someKey: {
+      ComparisonOperator: 'EQ | NE | IN | LE | LT | GE | GT | BETWEEN | NOT_NULL | NULL | CONTAINS | NOT_CONTAINS | BEGINS_WITH', // required
+      AttributeValueList: [
+        {
+          B: 'BASE64_ENCODED_STRING',
+          BS: [
+            'BASE64_ENCODED_STRING',
+            // ... more items ...
+          ],
+          N: 'STRING_VALUE',
+          NS: [
+            'STRING_VALUE',
+            // ... more items ...
+          ],
+          S: 'STRING_VALUE',
+          SS: [
+            'STRING_VALUE',
+            // ... more items ...
+          ],
+        },
+        // ... more items ...
+      ],
+    },
+    // anotherKey: ...
+  },
+  Limit: 0,
+  ReturnConsumedCapacity: 'INDEXES | TOTAL | NONE',
+  ScanIndexForward: true || false,
+  Select: 'ALL_ATTRIBUTES | ALL_PROJECTED_ATTRIBUTES | SPECIFIC_ATTRIBUTES | COUNT',
+};
+dynamodb.query(params, function(err, data) {
+  if (err) console.log(err, err.stack); // an error occurred
+  else     console.log(data);           // successful response
+}
+snippet scan
+var params = {
+  TableName: 'STRING_VALUE', // required
+  AttributesToGet: [
+    'STRING_VALUE',
+    // ... more items ...
+  ],
+  ExclusiveStartKey: {
+    someKey: {
+      B: 'BASE64_ENCODED_STRING',
+      BS: [
+        'BASE64_ENCODED_STRING',
+        // ... more items ...
+      ],
+      N: 'STRING_VALUE',
+      NS: [
+        'STRING_VALUE',
+        // ... more items ...
+      ],
+      S: 'STRING_VALUE',
+      SS: [
+        'STRING_VALUE',
+        // ... more items ...
+      ],
+    },
+    // anotherKey: ...
+  },
+  Limit: 0,
+  ReturnConsumedCapacity: 'INDEXES | TOTAL | NONE',
+  ScanFilter: {
+    someKey: {
+      ComparisonOperator: 'EQ | NE | IN | LE | LT | GE | GT | BETWEEN | NOT_NULL | NULL | CONTAINS | NOT_CONTAINS | BEGINS_WITH', // required
+      AttributeValueList: [
+        {
+          B: 'BASE64_ENCODED_STRING',
+          BS: [
+            'BASE64_ENCODED_STRING',
+            // ... more items ...
+          ],
+          N: 'STRING_VALUE',
+          NS: [
+            'STRING_VALUE',
+            // ... more items ...
+          ],
+          S: 'STRING_VALUE',
+          SS: [
+            'STRING_VALUE',
+            // ... more items ...
+          ],
+        },
+        // ... more items ...
+      ],
+    },
+    // anotherKey: ...
+  },
+  Segment: 0,
+  Select: 'ALL_ATTRIBUTES | ALL_PROJECTED_ATTRIBUTES | SPECIFIC_ATTRIBUTES | COUNT',
+  TotalSegments: 0,
+};
+dynamodb.scan(params, function(err, data) {
+  if (err) console.log(err, err.stack); // an error occurred
+  else     console.log(data);           // successful response
+}
+snippet updateItem
+var params = {
+  Key: { // required
+    someKey: {
+      B: 'BASE64_ENCODED_STRING',
+      BS: [
+        'BASE64_ENCODED_STRING',
+        // ... more items ...
+      ],
+      N: 'STRING_VALUE',
+      NS: [
+        'STRING_VALUE',
+        // ... more items ...
+      ],
+      S: 'STRING_VALUE',
+      SS: [
+        'STRING_VALUE',
+        // ... more items ...
+      ],
+    },
+    // anotherKey: ...
+  },
+  TableName: 'STRING_VALUE', // required
+  AttributeUpdates: {
+    someKey: {
+      Action: 'ADD | PUT | DELETE',
+      Value: {
+        B: 'BASE64_ENCODED_STRING',
+        BS: [
+          'BASE64_ENCODED_STRING',
+          // ... more items ...
+        ],
+        N: 'STRING_VALUE',
+        NS: [
+          'STRING_VALUE',
+          // ... more items ...
+        ],
+        S: 'STRING_VALUE',
+        SS: [
+          'STRING_VALUE',
+          // ... more items ...
+        ],
+      },
+    },
+    // anotherKey: ...
+  },
+  Expected: {
+    someKey: {
+      Exists: true || false,
+      Value: {
+        B: 'BASE64_ENCODED_STRING',
+        BS: [
+          'BASE64_ENCODED_STRING',
+          // ... more items ...
+        ],
+        N: 'STRING_VALUE',
+        NS: [
+          'STRING_VALUE',
+          // ... more items ...
+        ],
+        S: 'STRING_VALUE',
+        SS: [
+          'STRING_VALUE',
+          // ... more items ...
+        ],
+      },
+    },
+    // anotherKey: ...
+  },
+  ReturnConsumedCapacity: 'INDEXES | TOTAL | NONE',
+  ReturnItemCollectionMetrics: 'SIZE | NONE',
+  ReturnValues: 'NONE | ALL_OLD | UPDATED_OLD | ALL_NEW | UPDATED_NEW',
+};
+dynamodb.updateItem(params, function(err, data) {
+  if (err) console.log(err, err.stack); // an error occurred
+  else     console.log(data);           // successful response
+}
+snippet updateTable
+var params = {
+  TableName: 'STRING_VALUE', // required
+  GlobalSecondaryIndexUpdates: [
+    {
+      Update: {
+        IndexName: 'STRING_VALUE', // required
+        ProvisionedThroughput: { // required
+          ReadCapacityUnits: 0, // required
+          WriteCapacityUnits: 0, // required
+        },
+      },
+    },
+    // ... more items ...
+  ],
+  ProvisionedThroughput: {
+    ReadCapacityUnits: 0, // required
+    WriteCapacityUnits: 0, // required
+  },
+};
+dynamodb.updateTable(params, function(err, data) {
+  if (err) console.log(err, err.stack); // an error occurred
+  else     console.log(data);           // successful response
+}
+snippet waitFor
+var params = {
+  TableName: 'STRING_VALUE', // required
+};
+dynamodb.waitFor('tableExists', params, function(err, data) {
+  if (err) console.log(err, err.stack); // an error occurred
+  else     console.log(data);           // successful response
+}"""
