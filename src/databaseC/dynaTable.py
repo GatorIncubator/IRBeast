@@ -7,7 +7,7 @@ table = dynamob .create_table(
     TableName = "Irb",
     Keyschema = [
     {
-        'AttributeName: 'studentIDNumber',
+        'AttributeName': 'studentIDNumber',
         'KeyType': 'HASH'
     }
     {
@@ -17,5 +17,20 @@ table = dynamob .create_table(
     {
         'AttributeName: 'major'
     }
+],
+    AttributeDefinitions= [
+    {
+        'AttributeName': 'year',
+        'AttributeType': 'N'
+    }
+    {
+        'AttributeName': 'title',
+        'AttributeType: 'Y'
+    },
+     ProvisionedThroughput={
+        'ReadCapacityUnits': 10,
+        'WriteCapacityUnits': 10
+    }
     ]
+
 )

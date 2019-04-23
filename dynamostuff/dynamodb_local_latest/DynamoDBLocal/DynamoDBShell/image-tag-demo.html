@@ -1,0 +1,1001 @@
+<html>                                                                  
+<head>                                   
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+<title>Amazon DynamoDB Image Tagging Demo</title>
+<script src="jquery.min.js"></script>
+<script src="./jsrepl/extern/javascript/aws-sdk.min.js"></script>
+<script type="text/javascript">
+
+$(document).ready(function(){
+    $('#dynamoEndpoint').val(location.href.substring(0, location.href.indexOf('/',8)));
+});
+
+////////////// BEGIN DATA LAYER (interacting with DynamoDB)
+
+// Instance of the DynamoDB client
+var dynamodb = null;
+
+// Lists the first 1MB of tags
+function listTags(callback) {
+    console.log("Listing tags");
+    dynamodb.scan({
+        'TableName': 'Tag'
+    }, callback);
+}
+
+// Gets an image and its tags by id.  Returns the usual GetItem result for the 
+// Image item, and also returns a 'Tags' element in the map with a string array
+// of the tags, as returned by queryTagsByImage.
+function getImage(imageId, callback) {
+    console.log('getImage: ImageId: ' + imageId);
+    
+    var params = {
+        'TableName': 'Image',
+        'Key': {
+            'Id': imageId
+        }
+    };
+    dynamodb.getItem(params, function (err, imageData) {
+        if (err) {
+            callback(err, imageData);
+            return;
+        }
+        if (imageData['Item'] == null) {
+            callback(null, imageData);
+            return;
+        }
+        
+        queryTagsByImage(imageId, function(err, data) {
+            imageData['Tags'] = data['Tags'];
+            callback(null, imageData);
+        });
+    });
+}
+
+// Given an image id, return all of its tags.  
+// This uses the Query API on the Global Secondary Index on the ImageTag table.
+// Returns: {
+//   'Tags': ['foo', 'bar']
+// }
+function queryTagsByImage(imageId, callback) {
+    console.log('queryTagsByImage: ' + imageId);
+    var params = {
+        'TableName': 'ImageTag',
+        'IndexName': 'ImageId-index',
+        'KeyConditions': dynamodb.Condition('ImageId', 'EQ', imageId),
+    };
+    dynamodb.query(params, function(err, data) {
+        if (err) {
+            callback(err, data);
+            return;
+        }
+        
+        var tags = [];
+        for (var i = 0; i < data['Items'].length; i++) {
+            tags[i] = data['Items'][i]['Tag'];
+        }
+        callback(null, {
+            'Tags' : tags
+        });
+    });
+}
+
+// Given a tag, queries for all images with that tag, sorted by VoteCount, returning up to Limit results.
+// If votes and imageId are passed in, this query starts at that vote/imageId starting point (for pagenation)
+function queryImagesByTag(tag, limit, votes, imageId, callback) {
+    console.log('queryImagesByTag: Tag: "' + tag + '" limit: ' + limit + ' votes: ' + votes + ' imageId: ' + imageId);
+    var params = {
+        'TableName': 'ImageTag',
+        'IndexName': 'VoteCount-index',
+        'KeyConditions': dynamodb.Condition('Tag', 'EQ', tag),
+        'ScanIndexForward': false
+    };
+    if(limit) {
+        params['Limit'] = parseInt(limit);
+    }
+    if(votes != null && imageId != null) {
+        params['ExclusiveStartKey'] = {
+            'Tag': tag,
+            'VoteCount': votes,
+            'ImageId': imageId
+        };
+    }
+    dynamodb.query(params, callback);
+}
+
+// Inserts a new image into the Image table.  Also tags the image with the specified initial tag.
+// Returns the null data.  If the image already existed, the err callback will include 
+// the code 'ConditionalCheckFailedException'.
+function insertImage(imageId, firstTag, dateStr, callback) {
+    console.log("Tag: " + tag + " " + "imageId: " + imageId);
+    
+    dynamodb.putItem({
+            'TableName': 'Image',
+            'Item': {
+                'Id': imageId,
+                'VoteCount': 0,
+                'DateAdded': dateStr
+            },
+            'Expected': dynamodb.Condition('Id', 'NULL')
+        }, function(err, data) {
+            if (err) {
+                callback(err, data);
+                return;
+            }
+            // Now that the image item was inserted (and wasn't already there), 
+            // insert the "default" ImageTag item.  That callback will in turn 
+            // increment the ImageCount on the "default" Tag item.
+            insertImageTag(firstTag, imageId, dateStr, 0, function(err, data) {
+                if (err) {
+                    callback(err, data);
+                    return;
+                }
+                callback(null, null);
+            });
+        });
+}
+
+// Fetches the item record to find out its current vote count, and then calls insertImageTag to tag the 
+// image with the votes.  If the caller already knows the vote count, insertImageTag can be called directly.
+function tagImage(imageId, tag, dateStr, callback) {
+    console.log("Tag: " + tag + " imageId: " + imageId);
+    var params = {
+        'TableName': 'Image',
+        'Key': {
+            'Id': imageId
+        },
+        'ConsistentRead': true
+    };
+    dynamodb.getItem(params, function (err, data) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        if (data['Item'] == null) {
+            callback("The image item does not exist", null);
+            return;
+        }
+        var voteCount = data['Item']['VoteCount'];
+        insertImageTag(tag, imageId, dateStr, voteCount, callback);
+    });
+}
+
+// Fetches an image, deletes all of the ImageTag items associated with it
+// (performing the associated Tag Iten "ImageCount" updates), 
+// and then deletes the Image item
+function deleteImage(imageId, callback) {
+    queryTagsByImage(imageId, function(err, data) {
+        if(err) {
+            callback(err, null);
+            return;
+        }
+        var tags = data['Tags'];
+        console.log("Deleting tags for image " + imageId + ": " + tags);
+        deleteImageTags(tags, imageId, function(err, data) {
+            if (err) {
+                callback(err, data);
+                return;
+            }
+            deleteImageItem(imageId, callback);
+        });
+    });
+}
+
+// Serially deletes the input list of tags for the image (performing the Tag Item "ImageCount" updates),
+// and once they are all deleted, triggers the callback.
+function deleteImageTags(tags, imageId, callback) {
+    console.log("deleteImageTags: " + imageId + " tags: " + tags);
+    if (tags.length == 0) {
+        console.log("deleteImageTags: No more tags for image: " + imageId);
+        callback(null, {});
+    } else {
+        var tag = tags.pop();
+        removeImageTag(tag, imageId, function(err, data) {
+            if (err) {
+                callback(err, data);
+                return;
+            }
+            deleteImageTags(tags, imageId, callback);
+        });
+    }
+}
+
+// Deletes the Item image, optionally expecting certain tags to be set for that image.
+function deleteImageItem(imageId, callback) {
+    console.log("deleteImageItem: " + imageId);
+    var params = {
+        'TableName': 'Image',
+        'Key': {
+            'Id': imageId
+        }
+    };
+
+    dynamodb.deleteItem(params, callback);
+}
+
+// UpVotes the Image Item in the Image table,
+// and then also upvotes each ImageTag item asynchronously.
+function upVoteImage(imageId, voteDiff, callback) {
+    console.log("upVoteImage: " + imageId + " voteDiff " + voteDiff);
+    var params = {
+        'TableName': 'Image',
+        'Key': {
+            'Id': imageId
+        },
+        'ReturnValues': 'ALL_NEW',
+           'AttributeUpdates': {
+                'VoteCount': {
+                    'Action': 'ADD',
+                    'Value': voteDiff                        
+                },
+        },
+        'Expected': dynamodb.Condition('Id', 'EQ', imageId)
+    };
+    dynamodb.updateItem(params, function (err, imageData) {
+        if (err) {
+            callback(err, null);
+        } else {
+            var voteCount = imageData['Attributes']['VoteCount'];
+            queryTagsByImage(imageId, function(err, data) {
+                if (err) {
+                    callback(err, data);
+                    return;
+                }
+                var tags = data['Tags'];
+                console.log("Upvoting tags: " + tags);
+                for(var i = 0; i < tags.length; i++) {
+                    upVoteImageTag(tags[i], imageId, voteDiff);
+                }
+                imageData['Tags'] = tags;
+                callback(null, imageData);
+            });
+        }
+    });
+}
+
+// Adds the specified voteDiff to an ImageTag item, as long as that item exists.
+function upVoteImageTag(tag, imageId, voteDiff, callback) {
+    console.log("upVoteImageTag tag: " + tag + " imageId: " + imageId + " voteDiff " + voteDiff);
+    var params = {
+        'TableName': 'ImageTag',
+        'Key': {
+                'Tag': tag,
+                'ImageId': imageId
+        },
+        'AttributeUpdates': {
+            'VoteCount': {
+                'Action': 'ADD',
+                'Value': voteDiff
+            }
+         },
+         'Expected': dynamodb.Condition('ImageId', 'EQ', imageId)
+        };
+    dynamodb.updateItem(params, function(err, data) {
+        if(callback != null) {
+            callback(err, data);
+        }
+    });
+}
+
+// Inserts a new ImageTag Item into the ImageTag table, and then increments 
+// the Tag item "ImageCount". If the ImageTag Item was already there, this 
+// inserts / increments the Tag item anyway.  This could result in over-counting,
+// but that is preferred over under-counting, since the Tag item gets deleted when
+// it has an ImageCount of zero or fewer.
+function insertImageTag(tag, imageId, dateStr, voteCount, callback) {
+    console.log("Insert ImageTag. Tag: " + tag + " ImageId: " + imageId);
+    dynamodb.putItem({
+        'TableName': 'ImageTag',
+        'Item': {
+            'Tag': tag,
+            'ImageId': imageId,
+            'VoteCount': voteCount,
+            'LastUpdateTime': dateStr
+        },
+        'Expected': dynamodb.Condition('ImageId', 'NULL')
+    }, function (err, data) {
+        if (err) {
+            if(err['code'] == "ConditionalCheckFailedException") {
+                // This means that the Expected clause did not hold true, meaning 
+                // that the ImageTag item was already there.  Therefore, we don't know
+                // if the previous operation that inserted it crashed before 
+                // inserting / incremeting the Tag item.  So we will assume that
+                // it succeeded by going ahead and writing to the Tag item.
+                console.log("Found an existing ImageTag item for tag " 
+                    + tag + " and image " + imageId + ". This could result in over-counting "
+                    + " the images for this tag.");
+            } else {
+                callback(err, null);
+                return;
+            }
+        }
+        // Insert / increment the Tag item
+        insertTag(tag, callback);
+    });
+}
+
+// Upserts a new Tag into the Tag table, incrementing its ImageCount.
+function insertTag(tag, callback) {
+    console.log("Insert / increment Tag. Tag: " + tag);
+    
+    dynamodb.updateItem({
+        'TableName': 'Tag',
+        'Key': {
+            'Tag': tag
+        },
+        'AttributeUpdates': {
+            'ImageCount': {
+                'Action': 'ADD',
+                'Value': 1
+            }
+        }
+    }, callback);
+}
+
+// Removes the tag from the Image, and then calls removeImageTag to propagate the change
+// to the Tag+Image and Tag tables.
+function unTagImage(tag, imageId, callback) {
+    console.log("unTagImage: " + tag + " image: " + imageId);
+    removeImageTag(tag, imageId, callback);
+}
+
+// Deletes the Tag+Image item, and updates the Tag item to decrement the count of images for that tag.
+function removeImageTag(tag, imageId, callback) {
+    console.log("Removing ImageTag Item: " + imageId + " tag: " + tag);
+    var params = {
+        'TableName': 'ImageTag',
+        'Key': {
+            'Tag': tag,
+            'ImageId': imageId
+        },
+        'Expected': dynamodb.Condition('ImageId', 'EQ', imageId)
+    };
+    dynamodb.deleteItem(params, function (err, data) {
+        if (err) {
+            if(err['code'] == "ConditionalCheckFailedException") {
+                // We don't try to decrement / delete the Tag in the case of failures, 
+                // because we don't want to under-count, which could result in deleting a 
+                // Tag item while there are still images with that Tag.
+                callback(null, {});
+            } else {
+                callback(err, null);
+            }
+        } else {
+            decrementTagCount(tag, callback);
+        }
+    });
+}
+
+// Decrements the ImageCount on a Tag Item.  If the ImageCount is now zero or less,
+// deletes the Tag Item.
+function decrementTagCount(tag, callback) {
+    console.log("Decrementing image count for tag: " + tag);
+    dynamodb.updateItem({
+        'TableName': 'Tag',
+        'Key': {
+            'Tag': tag
+        },
+        'ReturnValues': "UPDATED_NEW",
+            'AttributeUpdates': {
+                'ImageCount': {
+                    'Action': 'ADD',
+                    'Value': -1
+                }
+            },
+        'Expected': dynamodb.Condition('Tag', 'EQ', tag)
+    }, function (err, data) {
+        if (err) {
+            if(err['code'] == "ConditionalCheckFailedException") {
+                callback(null, {});
+            } else {
+                callback(err, data);
+            }
+        } else {
+            if(data['Attributes']['ImageCount'] <= 0) {
+                deleteTag(tag, data['Attributes']['ImageCount'], callback);
+            } else {
+                callback(null, {});
+            }
+        }
+    });
+}
+
+// Deletes a Tag Item, as long as its ImageCount is as expected.
+function deleteTag(tag, expectedImageCount, callback) {
+    console.log("Deleting tag item: " + tag);
+    dynamodb.deleteItem({
+        'TableName': 'Tag',
+        'Key': {
+            'Tag': tag
+        },
+        'Expected': dynamodb.Condition('ImageCount', 'EQ', expectedImageCount)
+    }, function (err, data) {
+        if (err && err['code'] != "ConditionalCheckFailedException") {
+            callback(err, data);
+            return;
+        }
+        callback(null, {});
+    });
+}
+
+////////////// END DATA LAYER (interacting with DynamoDB)
+</script>
+
+<style>
+body {
+  font-family: Verdana, Geneva, sans-serif;
+}
+
+table, th, td
+{
+  border: 1px solid black;
+  border-collapse:collapse;
+  padding: 3px;
+}
+
+.tagCloud {
+  display: inline;
+  padding: 7px;
+}
+
+.help {
+  padding: 5px;
+}
+
+.listImage {
+  display: inline;
+}
+
+.singleImage {
+  margin-left: auto;
+  margin-right: auto;
+  width: 60%;
+  min-width: 800px;
+  text-align: center;
+}
+</style>
+
+
+<script type="text/javascript">                                         
+
+// Variables for the single-image control so that the user only votes or tags a given tag once per page render
+var tagSet = {};
+var voted = false;
+var pageImageId = null;
+
+///////////// Render methods (printing stuff out on the page)
+
+// Entry point for onLoad().  Loads the TOC, parses args out of the query string to decide what to do next.
+function render() {
+
+    
+    if (parseArg('readme') != null) {
+        // Show the readme page with setup instructions
+        document.getElementById("upload").style.display = "none";
+    } else if (! checkCredentials()) {
+        window.location.href = '?readme';
+    } else {
+        // Credentials are available, render the site normally
+        document.getElementById("readme").style.display = "none";
+    
+        renderTags();
+      
+        tag = parseArg('tag');
+        votes = parseArg('votes');
+        imageId = parseArg('img');
+        if (tag != null) {
+            // Listing images by tag
+            renderImages(tag, votes, imageId);
+        } else if (imageId != null) {
+            // Looking at a single image
+            pageImageId = imageId;
+            renderImageView(imageId);
+        }
+    }
+}
+
+// Load the tags control
+function renderTags() {
+    listTags(function(err, data) { 
+        if(err) {
+            showErrorMessage(err);
+            return;
+        }
+        
+        // Sort the tags by count
+        var tagObjList = [];
+        var items = data['Items'];
+        for(var i = 0; i < items.length; i++) {
+            tagObjList.push({ 'Tag': items[i]['Tag'], 'ImageCount': items[i]['ImageCount']});
+        }
+        tagObjList.sort(function(a, b) {
+            return b.ImageCount - a.ImageCount;
+        });
+
+        var pageTag = parseArg('tag');
+        // Add the tags to the page
+        var categoryMarker = document.getElementById("categoryMarker");
+        for(var i = 0; i < tagObjList.length; i++) {
+            var tag = tagObjList[i]['Tag'];
+            var imageCount = tagObjList[i]['ImageCount'];
+            
+            var style = "";
+            if (pageTag == tag) {
+                style = 'style="font-weight: bold;" ';
+            }
+            
+            // Construct the HTML with a link to the tag with the count, and insert it into the page.
+            var newDiv = document.createElement('li');
+            newDiv.setAttribute('style', 'display: inline; padding: 7px;');
+            newDiv.innerHTML = '<a class="category" ' + style + 'href="?tag=' + encodeURIComponent(tag) + '">' + tag + '</a> <span style="font-size: smaller">(' + imageCount + ')</span>';
+            categoryMarker.appendChild(newDiv);
+        }
+    });
+}
+
+// Load the images, if listing the images by tag
+function renderImages(tag, lastVotes, lastImageId) {
+
+    queryImagesByTag(tag, 12, lastVotes, lastImageId, function(err, data) { 
+        if(err) {
+            console.log(err);
+            return;
+        }
+
+        // Print out each image
+        for(var i = 0; i < data['Items'].length; i++) {
+            itemObj = data['Items'][i];
+            imageId = itemObj['ImageId'];
+            console.log("Found image id: " + imageId);
+            renderImage(imageId, "listImage");
+        }
+
+        // Render the "next page" button for more images with this tag
+        var lastKey = data['LastEvaluatedKey'];
+        if(lastKey != null) {
+            var nextImageId = data['LastEvaluatedKey']['ImageId'];
+            var nextVoteCount = data['LastEvaluatedKey']['VoteCount'];
+            console.log("Continuation: " + lastKey);
+            
+            var newDiv = document.createElement('div');
+            newDiv.setAttribute('style', 'float: left; clear: both; margin-bottom: 20px; margin-top: 10px; font-weight: bold; font-size: 120%;');
+            newDiv.innerHTML = '<a href="?tag=' + encodeURIComponent(tag) + '&votes=' + nextVoteCount + '&img=' + encodeURIComponent(nextImageId) + '">more ' + tag + ' images &gt;</a>';
+            
+            var imageMarker = document.getElementById("nextPageLink");
+            imageMarker.appendChild(newDiv);
+        }
+    });
+}
+
+// Adds an image to the page
+function renderImage(imageId, cssClass) {
+    var deepLink = "images/demo/" + imageId;
+    if (imageId.indexOf('/') > 0) {
+        if (imageId.toLowerCase().indexOf('http://') === 0 || imageId.toLowerCase().indexOf('https://') === 0) {
+            deepLink = imageId;
+        } else {
+            deepLink = 'http://' + imageId;
+        }
+    }
+    var newDiv = document.createElement('div');
+    newDiv.setAttribute('class', cssClass);
+    newDiv.innerHTML = '<a href="?img=' + encodeURIComponent(imageId) + '"><img src="' + deepLink + '"></a>';
+        
+    document.getElementById("imageMarker").appendChild(newDiv);
+}
+
+// Prints out the details of the image and its controls
+function renderImageView(imageId) {
+    getImage(imageId, function(err, data) { 
+        if(err) {
+          console.log(err);
+          showErrorMessage(err);
+          return;
+        }
+        
+        imageItem = data['Item'];
+        
+        if (imageItem == null) {
+            var newDiv = document.createElement('div');
+            newDiv.setAttribute('class', 'singleImage');
+            newDiv.innerHTML = 'Image ' + imageId + ' was not found in the image tagging database';
+            
+            document.getElementById("imageMarker").appendChild(newDiv);  
+            return;
+        }
+        
+        renderImage(imageId, 'singleImage');
+        
+        var tags = data['Tags'];
+ 
+        document.getElementById("imageControls").style.display = "block";
+ 
+        for(var i = 0; i < tags.length; i++) {
+            tag = tags[i];
+            tagSet[tag] = true;
+            renderImageTagLink(imageId, tag);
+        }
+        renderVoteCount(data['Item']['VoteCount']);
+    });
+}
+
+// Prints out the vote count for the image in the right spot
+function renderVoteCount(voteCount) {
+    document.getElementById("voteCount").innerHTML = '<b>' + voteCount + '</b>';
+}
+
+// Prints out the tags for the image in the right spot
+function renderImageTagLink(imageId, tag) {
+    var newDiv = document.createElement('li');
+    newDiv.setAttribute('style', 'display: inline; padding: 7px;');
+    newDiv.setAttribute('id', 'tagDiv_' + tag);
+    newDiv.innerHTML = '<b><a class="category" href="?tag=' + encodeURIComponent(tag) + '">' + tag + '</a></b>' + '&nbsp;<span style="cursor: pointer;" onclick="onRemoveTag(\'' + tag + '\');">[x]</span>';
+    
+    document.getElementById("imageTagsMarker").appendChild(newDiv);
+}
+
+////////// User-initiated actions
+
+// Tags the image with the user's tags
+function onAddTags() {
+    var box = document.forms["addTagsForm"].elements["addTagsText"];
+    var tags = box.value.split(",");
+    var thisTagSet = {};
+    for(var i = 0; i < tags.length; i++) { 
+        tags[i] = tags[i].trim();
+        console.log("adding tag " + tags[i]);
+        if(! thisTagSet[tags[i]]) {
+            addTag(tags[i]);
+            thisTagSet[tags[i]] = true;
+        }
+    }
+    box.value = "";
+    return false;
+}
+
+// Tags the image with a single tag
+function addTag(tag) {
+    tag = tag.trim();
+    if(tagSet[tag]) {
+        return;
+    }
+    tagSet[tag] = true;
+
+    if(pageImageId == null) {
+        return;
+    }
+  
+    tagImage(pageImageId, tag, new Date().toISOString(), function(err, data) {
+        if(err) {
+            console.log(err);
+            showErrorMessage(err);
+            return;
+        }
+        console.log(data);
+        renderImageTagLink(imageId, tag);
+    });
+}
+
+// Removes a tag from the image
+function onRemoveTag(tag) {
+    if(pageImageId == null || tag == null) {
+        return;
+    }
+    
+    unTagImage(tag, pageImageId, function(err, data) { 
+        if(err) {
+            console.log(err);
+            showErrorMessage(err);
+            return;
+        }
+        delete tagSet[tag];
+        var tagDiv = document.getElementById("tagDiv_" + tag);
+        if(tagDiv != null) {
+            tagDiv.parentNode.removeChild(tagDiv);
+        }
+    });
+}
+
+// Votes the image up or down 
+function onVote(direction) {
+    if(pageImageId == null || voted) {
+        return;
+    }
+    voted = true;
+    direction = parseInt(direction);
+    
+    upVoteImage(pageImageId, direction, function(err, data) {
+        if(err) {
+            console.log(err);
+            showErrorMessage(err);
+            return;
+        }
+        renderVoteCount(data['Attributes']['VoteCount']);
+    });
+}
+
+// Links a new image 
+function onLinkImage() {
+    var box = document.forms["linkImageForm"].elements["linkImageText"];
+    var imageId = box.value.trim();
+    
+    if (! isImage(imageId)) {
+        showErrorMessage("Image is not valid: " + imageId);
+        return false;
+    }
+    insertImage(imageId, 'new', new Date().toISOString(), function(err, data) {
+        if (err) {
+            showErrorMessage("Error inserting image: " + imageId + ": " + err);
+            return;
+        }
+        window.location.href = "?img=" + encodeURIComponent(imageId);
+    });
+    return false;
+}
+
+// Unlinks (deletes) an image 
+function onDeleteImage() {
+    var confirmDelete = confirm("Are you sure you want to unlink (delete) image " 
+        + pageImageId + " from the image tag database? (The actual image will not be deleted.  Its metadata will be deleted from this demo application.)");
+    if (! confirmDelete) {
+        return;
+    }
+    
+    deleteImage(pageImageId, function(err, data) {
+        if (err) {
+            console.log(err);
+            showErrorMessage(err);
+            return;
+        }
+        console.log("Finished deleting image " + pageImageId);
+        window.location.href = window.location.pathname;
+    });
+    return false;
+}
+
+// Saves the credentials from the login form in to the session store, and refreshes the page.
+function doSaveCreds() {
+
+    if (typeof(Storage) === 'undefined') {
+        alert("Your browser does not support HTML5 Storage.");
+        return false;
+    }
+
+    sessionStorage.accessKeyId = document.forms["loginForm"].elements["accessKeyId"].value.trim();
+    
+    document.getElementById("loginFormMsg").innerHTML = "(credentials saved)";
+    
+    return false;
+}
+
+// Saves the credentials from the login form in to the session store, and refreshes the page.
+function doSaveEndpoint() {
+
+    if (typeof(Storage) === 'undefined') {
+        alert("Your browser does not support HTML5 Storage.");
+        return false;
+    }
+
+    sessionStorage.endpoint = document.forms["endpointForm"].elements["endpoint"].value.toLowerCase().trim();
+    document.getElementById("endpointFormMsg").innerHTML = "(region saved)";
+    return false;
+}
+
+/////////// HELPER FUNCTIONS
+
+// Checks to see if credentials are saved in the session store
+function checkCredentials() {
+    if (parseArg('login') != null) {
+        return false;
+    } else if (typeof(Storage) === 'undefined') {
+        alert("Your browser does not support HTML5 Storage.  To use this example application with your current browser, you must embed your credentials.")
+        return false;
+    } else {
+        if (sessionStorage.accessKeyId) {
+            accessKeyId = sessionStorage.accessKeyId;
+        } else {
+            accessKeyId = 'cUniqueSessionID';
+        }
+
+        if (sessionStorage.endpoint) {
+            endpoint = sessionStorage.endpoint;
+        } else {
+            endpoint = location.href.substring(0, location.href.indexOf('/',8));
+        }
+
+        secretAccessKey = 'NOT_USED_FOR_DYNAMODB_LOCAL';
+        awsRegion = 'us-west-2';
+        if (accessKeyId != null && endpoint != '') {
+            initCredentials(accessKeyId, secretAccessKey, awsRegion, endpoint);
+            return true;
+        }
+    }
+    return false;
+}
+
+// Initializes the client with credentials
+function initCredentials(accessKeyId, secretAccessKey, awsRegion, endpoint) {
+    AWS.config.update({accessKeyId: accessKeyId, secretAccessKey: secretAccessKey});
+    AWS.config.region = awsRegion;
+    dynamodb_low = new AWS.DynamoDB({apiVersion: '2012-08-10', endpoint: new AWS.Endpoint(endpoint)});
+    dynamodb = new DynamoDB(dynamodb_low);
+}
+
+// Parse and URI decode a named query string parameter
+function parseArg(name) {
+    var queryExtract = new RegExp("[&?]?" + name + "=?([^&]*)");
+    var queryMatches = queryExtract.exec(window.location.search);
+    if (queryMatches != null) {
+        return decodeURIComponent(queryMatches[1]);
+    }
+    return null;
+}
+
+// Returns true if this is a hyperlink to something that looks like an image
+function isImage(imageId) {
+    lowerImageId = imageId.toLowerCase();
+    if (lowerImageId.indexOf("http") != 0) {
+        return false;
+    }
+    lastDot = imageId.lastIndexOf(".");
+    if (lastDot <= 0) {
+        return false;
+    }
+    extension = lowerImageId.substr(lastDot + 1);
+    if (extension == "gif" || extension == "jpg" || extension == "jpeg" || extension == "png" || extension == "svg") {
+        return true;
+    }
+    return false;
+}
+
+// Display a formatted error to the user
+function showErrorMessage(err) {
+    extraText = '';
+    if (err['code'] == 'UnrecognizedClientException' || err['code'] == 'AccessDeniedException') {
+        extraText = "You may not have used the correct AWS Credentials, or may have misconfigured your permissions.  See ?readme or click on the '?' link at the top of the page."
+    } else if (err['code'] == 'ProvisionedThroughputExceededException') {
+        extraText = "One or more of your tables has exceeded its provisioned throughput.  See the Amazon Developer Guide for or the AWS Console for how to increase your provisioned throughput.";
+    } else if (err['code'] == 'ResourceNotFoundException') {
+        extraText = "One or more of the required tables or indexes for this demo application does not exist in this region.  See ?readme or click on the '?' link at the top of the page.";
+    }
+    document.getElementById('errorText').innerHTML = document.getElementById('errorText').innerHTML + '<br><b>' + err + '</b><br>' + extraText + '<br>';
+}
+
+</script>        
+
+</head>
+<body onload="render();">
+
+<div id="banner" style="margin-left: auto; margin-right: auto; width: 60%; min-width: 800px;">
+  <div style="text-align: center; font-size: xx-large; padding: 5px;">Amazon DynamoDB Image Tagging Demo</div>
+  <div id="upload" style="text-align: center">
+    <form name="linkImageForm" onsubmit="return onLinkImage();">
+      <input type="text" name="linkImageText" size="50"/>
+      <input name="linkImageButton" type="button" onclick="onLinkImage()" value="link new image">&nbsp;&nbsp;<a href="?readme" title="Readme">?</a>
+    </form>
+    <span id="errorText" style="color: red;">&nbsp;</span>
+  </div>
+  <div id="readme" style="text-align: center">
+    <p style="text-align: left;">
+      To get started with the Amazon DynamoDB Image Tagging Demo for DynamoDB Local, you need to enter some basic configuration information to point
+      your browser to your DynamoDB Local endpoint and database.
+    </p>
+    <p style="text-align: left;">
+      To set up an this application:
+      <ol style="text-align: left;">
+        <li class="help">Enter the endpoint for DynamoDB Local.
+            <form name="endpointForm" onsubmit="return doSaveEndpoint();">
+                Endpoint: <input type="text" name="endpoint" size="40" id="dynamoEndpoint" value=""/>
+                <input name="loginButton" type="button" onclick="return doSaveEndpoint();" value="save"> <span id="endpointFormMsg" style="font-size: smaller;"></span>
+            </form>
+        </li>
+        <li class="help">Enter the access key id.  With DynamoDB Local this is not used for authentication.  Instead, it determines directly "account" is used.  Make sure to use the same
+           access key id as you used to create the required tables, if you have already done that.  For example, if you are using this demo application along with the DynamoDB Shell, 
+           use the access key id you configured in the DynamoDB Shell.  By default the DynamoDB shell uses "cUniqueSessionID".
+             <div>
+                <p>
+                  <form name="loginForm" onsubmit="return doSaveCreds();">
+                    Access Key Id: <input type="text" name="accessKeyId" size="26" value="cUniqueSessionID"/><br>
+                    <input name="loginButton" type="button" onclick="return doSaveCreds();" value="save"> <span id="loginFormMsg" style="font-size: smaller;"></span>
+                  </form>
+                </p>
+              </div>  
+        </li>
+        <li class="help">Now you need to create the necessary tables in DynamoDB.  You may have already done so, or can do so now, by opening the DynamoDB Shell and running the tutorial.
+          The DynamoDB Shell is hosted out of the same endpoint as this page, with the path "/shell" (for example, "http://localhost:8000/shell").
+          If you would like to create the tables yourself outside of the tutorial, create them with the following names, schemas, and indexes:
+          <p>
+            <table>
+              <tr>
+                <th>Table Name</th>
+                <th>Hash Key</th>
+                <th>Range Key</th>
+                <th>Reads</th>
+                <th>Writes</th>
+                <th>Secondary Indexes</th>
+              </tr><tr>
+                <td>Image</td>
+                <td>Id</td>
+                <td>&nbsp;</td>
+                <td>1</td>
+                <td>1</td>
+                <td>&nbsp;</td>
+              </tr><tr>
+                <td>Tag</td>
+                <td>Tag</td>
+                <td>&nbsp;</td>
+                <td>1</td>
+                <td>1</td>
+                <td>&nbsp;</td>
+              </tr>
+              <tr>
+                <td>ImageTag</td>
+                <td>Tag</td>
+                <td>ImageId</td>
+                <td>1</td>
+                <td>1</td>
+                <td>
+                  <table>
+                    <tr>
+                      <th>Index Name</th>
+                      <th>Index Type</th>
+                      <th>Hash Key</th>
+                      <th>Range Key</th>
+                      <th>Projection</th>
+                      <th>Reads</th>
+                      <th>Writes</th>
+                    </tr><tr>
+                      <td>VoteCount-index</td>
+                      <td>Local</td>
+                      <td>Tag</td>
+                      <td>VoteCount</td>
+                      <td>ALL_ATTRIBUTES</td>
+                      <td>-</td>
+                      <td>-</td>
+                    </tr><tr>
+                      <td>ImageId-index</td>
+                      <td>Global</td>
+                      <td>ImageId</td>
+                      <td>Tag</td>
+                      <td>KEYS_ONLY</td>
+                      <td>1</td>
+                      <td>1</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </p>
+        </li>
+        <li>Once you have completed these steps, return to the <a href="?">demo page</a> and start tagging!</li>
+      </ol>
+    </p>
+  </div>
+</div>
+<div id="categoryDiv" style="text-align: center; margin-left: auto; margin-right: auto; width: 60%; min-width: 800px;">
+  <ul id="categoryMarker">&nbsp;</ul>
+</div>
+<div id="bodyDiv" style="margin-top: 20px; text-align: center;">
+  <div id="imageMarker">&nbsp;</div>
+  <ul id="imageTagsMarker" style="padding: 10px;">&nbsp;</ul>
+  <div id="imageControls" style="display: none; margin: 10px;">
+    <div style="text-align: center;">
+      <form name="addTagsForm" onsubmit="return onAddTags();">
+        <input type="text" name="addTagsText"/>
+        <input name="addTagsButton" type="button" onclick="onAddTags()" value="add tags">
+      </form>
+    </div>
+    <div>
+      <span>Votes: <span id="voteCount"></span> 
+      <span style="cursor: pointer; text-decoration: underline;" onclick="onVote('1');">up</span> 
+      <span style="cursor: pointer; text-decoration: underline;" onclick="onVote('-1');">down</span>
+      <p>
+        <span style="cursor: pointer; text-decoration: underline;" onclick="onDeleteImage();">unlink image</span>
+      </p>
+    </div>
+  </div>
+  <div style="clear: both;" id="nextPageLink">&nbsp;</div>
+</div>
+
+</body>
+</html>

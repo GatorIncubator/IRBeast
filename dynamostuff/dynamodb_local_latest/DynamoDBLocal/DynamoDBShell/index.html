@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/Product">
+  <head>
+    <title>AWS Console</title>
+    <meta charset="UTF-8">
+
+    <!-- Application -->
+    <script src="jquery.min.js"></script>
+
+    <!-- Scripts -->
+      <!-- 21.07k gzipped. 65.98k un-gzipped. -->
+      <script type="text/javascript" src="lib/plutonium-HEAD.min.js"></script>
+
+      <!-- 25.00k gzipped. 144.16k un-gzipped. -->
+      <link rel="stylesheet" media="screen" href="lib/plutonium-HEAD.css">
+
+      <!-- 14.22k gzipped. 49.97k un-gzipped. -->
+      <link rel="stylesheet" media="screen" href="lib/service-icons-HEAD.css">
+
+
+      <link type="text/css" rel="stylesheet" href="css/style.css?{{CACHE_BUSTER}}" />
+      <link type="text/css" rel="stylesheet" href="css/print.css?{{CACHE_BUSTER}}" media="print" />
+      <link type="text/css" rel="stylesheet" href="css/ansi.css?{{CACHE_BUSTER}}" />
+      <link type="text/css" rel="stylesheet" href="css/hopscotch.min.css?{{CACHE_BUSTER}}" />
+
+
+      <!-- jsREPL -->
+        <script src="lib/ace/ace.js"></script>
+        <script src="jsrepl/repl.js?{{CACHE_BUSTER}}" id="jsrepl-script"></script>
+        <script src="jsrepl/languages.js?{{CACHE_BUSTER}}"></script>
+        <!-- repl.it -->
+        <script src="lib/hopscotch.min.js"></script>
+        <script src="lib/jqconsole.js"></script>
+        <script src="src/base.js?{{CACHE_BUSTER}}"></script>
+        <script src="src/browser-check.js?{{CACHE_BUSTER}}"></script>
+        <script src="src/dom.js?{{CACHE_BUSTER}}"></script>
+        <script src="src/repl.js?{{CACHE_BUSTER}}"></script>
+        <script src="src/pager.js?{{CACHE_BUSTER}}"></script>
+        <script src="src/startUp.js?{{CACHE_BUSTER}}"></script>
+        <script src="src/session.js?{{CACHE_BUSTER}}"></script>
+        <script src="src/languages.js?{{CACHE_BUSTER}}"></script>
+        <script src="src/snippets.js?{{ CACHE_BUSTER }}"></script>
+        <script src="src/prettyPrint.js?{{ CACHE_BUSTER }}"></script>
+        <script src="src/aceConsoleOutput.js?{{ CACHE_BUSTER }}"></script>
+        <script src="src/tour.js?{{ CACHE_BUSTER }}"></script>
+        <script src="src/examples.js?{{ CACHE_BUSTER }}"></script>
+        <script src="src/tutorialNavBar.js?{{ CACHE_BUSTER }}"></script>
+
+        <script src="lib/FileSaver.js"></script>
+
+        <!-- General -->
+        <meta name="description" content="">
+        <meta name="keywords" content="">
+        <meta name="author" content="">
+
+  </head>
+  <body>
+    <div id="header">
+      <a id="logo" href="#" onclick="REPLIT.OpenPage('workspace');"><div id="logoBox"><img id="svg" src="images/aws.svg" alt="AWS"></div></a>
+      <div id="buttons">
+        <!-- Warning: inline elements, any white space would break the layout -->
+          <div class="dropdown inline-block">
+              <button class="btn dropdown-toggle" data-toggle="dropdown" data-title="Change the workspace to a different SDK" data-tooltip="" data-placement="bottom"><i class="icon-aws color-text-orange icon-2x" aria-label="aws" role="img"></i></button>
+              <ul class="dropdown-menu">
+                  <li><a tabindex="-1" href="#" onclick="REPLIT.LoadLanguage('JavaScript');">AWS JavaScript SDK</a></li>
+              </ul>
+          </div>
+          <button href="#" class ="btn" data-tooltip="" data-placement="bottom" data-title="API Code Templates" onclick="REPLIT.OpenPage('examples');"><i class="icon-code icon-2x" aria-label="code" role="img"></i></button>
+          <button href="#saveModal" class ="btn" data-toggle="modal" data-tooltip="" data-placement="bottom" data-title="Save Workspace"><i class="icon-save icon-2x" aria-label="save" role="img"></i></button>
+          <button href="#optionsModal" class ="btn" data-toggle="modal" data-tooltip="" data-placement="bottom" data-title="Shell Options"><i class="icon-cog icon-2x" aria-label="cog" role="img"></i></button>
+          <button href="#" class ="btn" onclick="REPLIT.OpenPage('help');" data-tooltip="" data-placement="bottom" data-title="Shell Help"><i class="icon-question-sign color-text-blue icon-2x" aria-label="question-sign" role="img"></i></button>
+      </div>
+      <h1 id="title">Online Interpreter</h1>
+    </div>
+    <div id="main">
+      <div id="resize-left"></div>
+
+      <!-- Main wokspace area with editor and console. -->
+      <div id="content-workspace" class="page">
+        <div id="editor">
+          <button id="editor-run" data-tooltip="" data-placement="bottom" data-title="Run Code"><i class="icon-play icon-2x" aria-label="play" role="img"></i></button>
+          <button id="editor-switch" data-tooltip="" data-placement="bottom" data-title="Append Console text to the Editor"><i class="icon-double-angle-left icon-2x" aria-label="double-angle" role="img"></i></button>
+
+            <div id="editor-widget"></div>
+          <div id="unhide-left"></div>
+        </div>
+        <div id="resize-center"></div>
+        <div id="console">
+          <div id="replay-button" class="button">Run Session</div>
+          <div id="progress"><div id="progress-fill"></div></div>
+          <div id="unhide-right"></div>
+        </div>
+      </div>
+      <!-- Examples page. -->
+      <div id="content-examples" class="page">
+        <h2 class="content-title">API Templates</h2>
+        <div id="examples-editor"></div>
+       <!-- <div id="examples-separator"></div>-->
+        <!--<div id="examples-console"></div>-->
+        <div id="examples-back" class="page-close" onclick="REPLIT.OpenPage('workspace')"></div>
+      </div>
+      <!-- Help page. -->
+      <div id="content-help" class="page">
+        <h2 class="content-title">Help</h2>
+        <div id="help-faq">
+          <div class="help-header">Frequently Asked Questions</div>
+          <div class="faq-question">What is the DynamoDB Shell?</div>
+          <div class="faq-answer">The DynamoDB shell is interactive way to experience and try out the DynamoDB service through DynamoDB local. It is used for learning and testing purposes</div>
+
+          <div class="faq-question">How can I use it?</div>
+          <div class="faq-answer">Type in your code in the text editor on the left hand side. Press the play button to execute the code. The results will appear in the console on the right hand side</div>
+
+          <div class="faq-question">Saving/Loading Files</div>
+          <div class="faq-answer">To save either press Ctrl + S or go to the save screen by clicking the disk icon on the top toolbar.<br/><br/>To load either drag and drop a file from the
+          desktop onto the left text editor or go to the save screen by clicking the disk icon.
+          </div>
+
+          <div class="faq-question">Auto-Completion</div>
+          <div class="faq-answer">To use the auto-completion features press Ctrl + Space to open up the code prompt. To quickly complete code press the tab key while typing in partial commands</div>
+
+          <div class="faq-question">What about Code Snippets?</div>
+          <div class="faq-answer">To get a code snippet to appear start by typing in the keyword into the text editor and press the tab key. You will be guided further down the code by pressing the tab key.</div>
+        </div>
+        <div id="help-shortcuts">
+          <div class="help-header">Console Shortcuts</div>
+          <div class="help-shortcuts-content">
+            <div class="shortcut"><kbd>Enter</kbd></div>Evaluate the entered command.<br />
+            <div class="shortcut"><kbd>Shift<em>+</em>Enter</kbd></div>Continue to the next line.<br />
+            <div class="shortcut"><kbd>Tab</kbd></div>Indent.<br />
+            <div class="shortcut"><kbd>Shift<em>+</em>Tab</kbd></div>Unindent.<br />
+            <div class="shortcut"><kbd>Up</kbd></div>Previous history item.<br />
+            <div class="shortcut"><kbd>Down</kbd></div>Next history item.<br />
+            <div class="shortcut"><kbd>Ctrl<em>+</em>Up</kbd></div>Move to the line above the cursor.<br />
+            <div class="shortcut"><kbd>Ctrl<em>+</em>Down</kbd></div>Move to the line below the cursor.<br />
+            <div class="shortcut"><kbd>Ctrl<em>+</em>E</kbd></div>Move to the end of the current line.<br />
+            <div class="shortcut"><kbd>Ctrl<em>+</em>A</kbd></div>Move to the start of the current line.<br />
+            <div class="shortcut"><kbd>Ctrl<em>+</em>K</kbd></div>Clears the console.<br />
+            <div class="shortcut"><kbd>Ctrl<em>+</em>Z</kbd></div>Cancel current prompt.<br />
+            <div class="shortcut"><kbd>Ctrl<em>+</em>G</kbd></div>Open examples preview.<br />
+            <div class="shortcut"><kbd>Ctrl<em>+</em>H</kbd></div>Open this help page.<br />
+          </div>
+            <div class="help-header">Editor Shortcuts</div>
+            <div class="help-shortcuts-content">
+                <div class="shortcut"><kbd>Ctrl<em>+</em>Space</kbd></div>Open Auto-Complete.<br />
+                <div class="shortcut"><kbd>Keyword<em>+</em>Tab</kbd></div>Auto-Complete Snippet<br />
+                <div class="shortcut"><kbd>Ctrl<em>+</em>L</kbd></div>Open Line Selector<br />
+                <div class="shortcut"><kbd>Ctrl<em>+</em>Z</kbd></div>Undo<br />
+                <div class="shortcut"><kbd>Ctrl<em>+</em>S</kbd></div>Save session<br />
+            </div>
+        </div>
+        <div id="help-back" class="page-close" onclick="REPLIT.OpenPage('workspace')"></div>
+      </div>
+      <!-- About page. -->
+      <div id="content-about" class="page">
+        <h2 class="content-title">About Us</h2>
+        <div id="about-back" class="page-close" onclick="REPLIT.OpenPage('workspace')"></div>
+      </div>
+      <div id="resize-right"></div>
+    </div>
+    <!-- Browser fallback page. -->
+    <div id="content-fallback">
+      <div id="fallback-header">Browser Version Not Supported</div>
+      <div id="fallback-content">
+        Due to repl.it's reliance on advanced JavaScript techniques, older browsers might have problems running it correctly. Please download the latest version of your favourite browser.
+        <br />
+        <a href="http://www.google.com/chrome" id="browser-chrome">Chrome 13+</a>
+        <a href="http://www.mozilla.org/firefox/" id="browser-firefox">Firefox 4+</a>
+        <a href="http://www.opera.com/download/" id="browser-opera">Opera 11.51+</a>
+        <br />
+        <a href="http://windows.microsoft.com/en-US/internet-explorer/downloads/ie" id="browser-ie">IE 10+</a>
+        <a href="http://www.apple.com/safari/download/" id="browser-safari">Safari 5+</a>
+        <div id="fallback-ignore">Let me try anyway!</div>
+      </div>
+    </div>
+    <div id="footer">
+        <div id="links">
+            <a href="/" id="language-about-link" target="_blank"></a>
+            <a href="/" id="language-engine-link" target="_blank"></a>
+            <a href="http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/Welcome.html" target="_blank">DynamoDB API Reference</a>
+            <a href="http://docs.aws.amazon.com/AWSJavaScriptSDK/guide/browser-intro.html" target="_blank">AWS JavaScript SDK Developer Guide</a>
+        </div>
+    </div>
+
+    <!-- Modal container -->
+    <div id="optionsModal" class="modal fade" data-dialog="true" tabindex="-1" role="dialog" aria-labelledby="modal-label">
+
+        <!-- Header -->
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="modal-label-options">Options</h3>
+        </div>
+
+        <!-- Body -->
+        <div id="optionsModalBody" class="modal-body">
+            <h4><span class="bold-tip">Access Key Id:</span></h4>
+            <br/>
+            <p>Change the database within DynamoDB local: <br/>(the DB file is based upon the Access Key ID)</p>
+            <br/>
+            <input type="text" id="accessKeyId" placeholder="accessKeyId" required="">
+            <br/>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer">
+            <button class="btn btn-link" data-dismiss="modal" id="exitOptions">Cancel</button>
+            <button class="btn btn-primary" id="saveOptions">Save changes</button>
+        </div>
+    </div>
+
+    <!-- Modal container -->
+    <div id="saveModal" class="modal fade" data-dialog="true" tabindex="-1" role="dialog" aria-labelledby="modal-label">
+
+        <!-- Header -->
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="modal-label-save">Save</h3>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body">
+            <button id="button-save" class="btn btn-large btn-primary"><i class="icon-cloud-download icon-4x"></i> Download</button>
+            <br/>
+            <br/>
+            <i class="icon-cloud-upload icon-4x"></i> Upload:
+            <input type="file" id="button-load"/>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer">
+            <button class="btn btn-link" data-dismiss="modal" id="exitSave">Exit</button>
+        </div>
+    </div>
+  </body>
+</html>
