@@ -11,9 +11,11 @@ table = dynamob .create_table(
         'KeyType': 'HASH'
     }
     {
-        'AttributeName: 'name",
+        'AttributeName: 'name',
         'KeyType': 'sort'
     }
-
+    {
+        'AttributeName: 'major'
+    }
     ]
 )
