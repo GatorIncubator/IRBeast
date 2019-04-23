@@ -66,11 +66,12 @@ def is_valid_submit(args):
 
 
 def verify(args):
-    verified = True
+    verified = False
+    VALID_LOGIN = False
     if args.login:
-        verified = is_valid_login(args)
+        VALID_LOGIN = is_valid_login(args)
     if args.file:
         verified = is_valid_file(args)
     # if args.submit:
     #     verified = is_valid_submit(args)
-    return verified
+    return VALID_LOGIN and verified

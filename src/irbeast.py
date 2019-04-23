@@ -112,7 +112,7 @@ def main():
             args = repl_command()
     else:
         if arguments.verify(args):
-            if args.login is not None and login_user(
+            if args.login is not False and login_user(
                 args.username, args.password
             ):
                 print("Logged In")
