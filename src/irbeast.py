@@ -116,7 +116,7 @@ def main():
                 args.username, args.password
             ):
                 print("Logged In")
-                if args.checklist is not None:
+                if args.checklist is not False:
                     if args.file is not None:
                         checklist(args.file)
                     else:

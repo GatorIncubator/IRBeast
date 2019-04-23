@@ -66,7 +66,7 @@ def is_valid_submit(args):
 
 
 def verify(args):
-    verified = False
+    verified = True
     VALID_LOGIN = False
     if args.login:
         VALID_LOGIN = is_valid_login(args)
