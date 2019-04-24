@@ -2,23 +2,24 @@ from __future__ import print_function
 import boto3
 
 dynamodb = boto3.resource(
-    "dynamodb", region_name="us-west-2", endpoint_url="http://localhost:8000"
+    "dynamodb"
 )
 
 table = dynamodb.create_table(
     TableName="Irb",
     KeySchema=[
         {"AttributeName": "studentIDNumber", "KeyType": "HASH"},
-        {"AttributeName": "major", "KeyType": "RANGE"},
+        {"AttributeName": "major", "KeyType": "RANGE"}
     ],
     AttributeDefinitions=[
-        {"AttributeName": "year", "AttributeType": "N"},
-        {"AttributeName": "title", "AttributeType": "Y"},
+        {"AttributeName": "studentIDNumber", "AttributeType": "N"},
+        {"AttributeName": "major", "AttributeType": "B"}
     ],
     ProvisionedThroughput={
     "ReadCapacityUnits": 10,
     "WriteCapacityUnits": 10
     }
 )
-
+table.meta.client.get_waiter('table_exists').wait(TableName='Irb')
+print(table.item_count)
 print("Table status:", table.table_status)
