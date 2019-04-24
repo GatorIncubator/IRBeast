@@ -3,7 +3,10 @@
   "app_name": "IRBeast",
   "stages": {
     "dev": {
-      "api_gateway_stage": "api"
+      "api_gateway_stage": "api",
+      "environment_variables": {
+     "MEDIA_TABLE_NAME": "Irb",
+     "MEDIA_BUCKET_NAME": "media-query-mediabucket-fb8oddjbslv1"
     }
   }
 }

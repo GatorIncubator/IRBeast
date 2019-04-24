@@ -14,6 +14,7 @@ bullet = "*"
 chalice = "*"
 pipenv-to-requirements = "*"
 boto3 = "*"
+awscli = "*"
 
 [pipenv]
 allow_prereleases = true
