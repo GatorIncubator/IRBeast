@@ -43,4 +43,28 @@ Documentation](https://pipenv.readthedocs.io/en/latest/install/)
 
 IRBeast can be run via command line arguments or through the built it Repl system.
 To run it for either method use the command `python3 IRBeast.py`. If no arguments
-are supplied it will automatically enter the Repl where you will be 
+are supplied it will automatically enter the Repl where you will be asked to login
+to the server, specify the file to generate a checklist from, check off items in
+the checklist, and submit the files. The commands for theses are are `file`,
+`checklist`, and `submit` respectively.
+
+### Running from the command line
+
+IRBeast can also be run using the following command line arguments.
+
+### Arguments
+
+* `--login`: This argument is required for all operations and requires the
+arguments `--username` and `--password` arguments to be supplied as well. Each of
+these arguments should be followed by the user's username and password respectively.
+
+* `--file`: Argument for specifying the text file that contains the items for the
+checklist. The checklist should stored be within `checklists/`.
+
+* `--checklist`: Launches the Bullet checklist, item selection is performed using
+`space bar` while the item is highlighted and `Enter` is used to specify the end
+of selection. All selected items are saved inside a file within `checklists/` called
+`submission_checklist.txt`
+
+* `--submit`: Uploads the supplied filenames to the server for evaluation and
+possible submission. 
