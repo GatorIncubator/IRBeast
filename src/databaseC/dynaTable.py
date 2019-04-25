@@ -10,10 +10,13 @@ table = dynamodb.create_table(
     KeySchema=[
         {"AttributeName": "studentIDNumber", "KeyType": "HASH"},
         {"AttributeName": "major", "KeyType": "RANGE"}
+        #{"AttributeName": "projectName", "KeyType": "HASH"}
     ],
     AttributeDefinitions=[
         {"AttributeName": "studentIDNumber", "AttributeType": "N"},
         {"AttributeName": "major", "AttributeType": "B"}
+        #{"AttributeName": "projectName", "KeyType": "HASH"}
+        
     ],
     ProvisionedThroughput={
     "ReadCapacityUnits": 10,

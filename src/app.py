@@ -3,7 +3,7 @@ import os
 import boto3
 from chalice import Chalice
 from chalicelib import db
-from chalicelib import rekognition
+from chalicelib import rekognitionz
 
 app = Chalice(app_name='IRBeast')
 
@@ -18,6 +18,13 @@ def get_media_db():
             boto3.resource('dynamodb').Table(
                 os.environ['Irb']))
     return _MEDIA_DB
+
+def get_rekognition_client():
+    global _REKOGNITION_CLIENT
+    if _REKOGNITION_CLIENT is None:
+        _REKOGNITION_CLIENT = rekognition.RekognitonClient(
+            boto3.client('rekognition'))
+    return _REKOGNITION_CLIENT
 
 @app.lambda_function()
 def detect_labels_on_image(event, context):
