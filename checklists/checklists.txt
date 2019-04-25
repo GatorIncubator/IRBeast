@@ -1,7 +1,6 @@
-
-*Name
-*Were you very clear about your procedures?
-*Were you very clear about how measures were implemented(I.e stress)?
-*Did you remember to include information about the Sona compensation?
-*Did you remember to include all related materials in your IRB?
-*Did you remember to include them all in one PDF file?
+Name
+Were you very clear about your procedures?
+Were you very clear about how measures were implemented(I.e stress)?
+Did you remember to include information about the Sona compensation?
+Did you remember to include all related materials in your IRB?
+Did you remember to include them all in one PDF file?
