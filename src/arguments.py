@@ -62,6 +62,11 @@ def is_valid_file(args):
     return False
 
 
+def is_valid_checklist(args):
+    """checks if the checklist can be generated"""
+    return args.checklist is not False and is_valid_file(args)
+
+
 def is_valid_submit(args):
     """checks if submission file is valid"""
     if args.submit is not None:
@@ -77,12 +82,15 @@ def is_valid_submit(args):
 def verify(args):
     """checks if supplied arguments are valid"""
     valid_login = False
+    valid_checklist = True
     valid_file = True
     valid_submit = True
     if args.login:
         valid_login = is_valid_login(args)
+    if args.checklist:
+        valid_checklist = is_valid_checklist(args)
     if args.file:
         valid_file = is_valid_file(args)
     if args.submit:
         valid_submit = is_valid_submit(args)
-    return valid_login and valid_file and valid_submit
+    return valid_login and valid_checklist and valid_file and valid_submit
