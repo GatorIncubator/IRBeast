@@ -4,6 +4,7 @@ import pytest
 
 from src import arguments
 
+
 @pytest.mark.parametrize(
     "args",
     [
@@ -91,7 +92,7 @@ def test_is_valid_checklist(args):
         )
     ]
 )
-def test_is_valid_file(args, capsys):
+def test_is_valid_file(args):
     """tests if there is not a valid submission file"""
     parse_args = arguments.parse(args)
     valid_submit = arguments.is_valid_file(parse_args)
