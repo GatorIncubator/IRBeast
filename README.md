@@ -70,3 +70,5 @@ IRBeast can also be run using the following command line arguments.
 
 * `--submit`: Uploads the supplied filenames to the server for evaluation and
   possible submission.
+
+## Testing IRBeast
