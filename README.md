@@ -8,8 +8,9 @@
 [![code-style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 ![license-mit](https://img.shields.io/github/license/GatorEducator/IRBeast.svg)
 
-IRBeast is a software tool developed to help student researchers ensure that they create a successful IRB proposal.
-Use this tool to make an awesome IRB proposal document and become an IRBeast!
+IRBeast is a software tool developed to help student researchers ensure that they
+create a successful IRB proposal. Use this tool to make an awesome IRB proposal
+document and become an IRBeast!
 
 ## Installing IRBeast
 
@@ -55,16 +56,17 @@ IRBeast can also be run using the following command line arguments.
 ### Arguments
 
 * `--login`: This argument is required for all operations and requires the
-arguments `--username` and `--password` arguments to be supplied as well. Each of
-these arguments should be followed by the user's username and password respectively.
+  arguments `--username` and `--password` arguments to be supplied as well. Each
+  of these arguments should be followed by the user's username and password
+  respectively.
 
 * `--file`: Argument for specifying the text file that contains the items for the
-checklist. The checklist should stored be within `checklists/`.
+  checklist. The checklist should stored be within `checklists/`.
 
 * `--checklist`: Launches the Bullet checklist, item selection is performed using
-`space bar` while the item is highlighted and `Enter` is used to specify the end
-of selection. All selected items are saved inside a file within `checklists/` called
-`submission_checklist.txt`
+  `space bar` while the item is highlighted and `Enter` is used to specify the end
+  of selection. All selected items are saved inside a file within `checklists/`
+  called `submission_checklist.txt`
 
 * `--submit`: Uploads the supplied filenames to the server for evaluation and
-possible submission. 
+  possible submission.

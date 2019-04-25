@@ -1,8 +1,11 @@
-"""Handle checklist arguments"""
+"""Handle arguments"""
+
+from __future__ import print_function
 import argparse
 
 
 def parse(args):
+    """specifies command line arguments"""
     irb_parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
@@ -24,11 +27,17 @@ def parse(args):
     )
 
     irb_parser.add_argument(
-        "--file", type=str, help="path to the file for the checklist"
+        "--file",
+        type=str,
+        help="path to the file for the checklist\n" +
+             "should be within 'checklists/''"
     )
 
     irb_parser.add_argument(
-        "--submit", type=str, help="path to the file(s) to submit"
+        "--submit",
+        type=str,
+        help="path to the proposal to submit\n" +
+             "should be within 'submit/''"
     )
 
     irb_arguments_finished = irb_parser.parse_args(args)
@@ -37,16 +46,15 @@ def parse(args):
 
 
 def is_valid_login(args):
-    if args.username is not None and args.password is not None:
-        return True
-    else:
-        return False
+    """checks if login supplied with username and password"""
+    return args.username is not None and args.password is not None
 
 
 def is_valid_file(args):
+    """checks if checklist file supplied is valid"""
     if args.file is not None:
         try:
-            open(args.file)
+            open("./checklists/" + args.file)
         except FileNotFoundError:  # noqa: F821
             print("File Not Found")
             return False
@@ -55,9 +63,10 @@ def is_valid_file(args):
 
 
 def is_valid_submit(args):
+    """checks if submission file is valid"""
     if args.submit is not None:
         try:
-            open(args.submit)
+            open("./submit/" + args.submit)
         except FileNotFoundError:  # noqa: F821
             print("File Not Found")
             return False
@@ -66,12 +75,14 @@ def is_valid_submit(args):
 
 
 def verify(args):
-    verified = True
-    VALID_LOGIN = False
+    """checks if supplied arguments are valid"""
+    valid_login = False
+    valid_file = True
+    valid_submit = True
     if args.login:
-        VALID_LOGIN = is_valid_login(args)
+        valid_login = is_valid_login(args)
     if args.file:
-        verified = is_valid_file(args)
-    # if args.submit:
-    #     verified = is_valid_submit(args)
-    return VALID_LOGIN and verified
+        valid_file = is_valid_file(args)
+    if args.submit:
+        valid_submit = is_valid_submit(args)
+    return valid_login and valid_file and valid_submit
