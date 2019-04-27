@@ -5,8 +5,9 @@
     "dev": {
       "api_gateway_stage": "api",
       "environment_variables": {
-     "MEDIA_TABLE_NAME": "Irb",
-     "MEDIA_BUCKET_NAME": "irbeast"
+        "MEDIA_TABLE_NAME": "Irb",
+        "MEDIA_BUCKET_NAME": "irbeast"
+      }
     }
   }
 }
