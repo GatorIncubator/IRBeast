@@ -18,12 +18,16 @@
     "MediaTable": {
       "Properties": {
         "AttributeDefinitions": [
-          {"AttributeName": "studentIDNumber", "AttributeType": "N"},
-          {"AttributeName": "major", "AttributeType": "B"}
+          {
+            "AttributeName": "studentIDNumber", "AttributeType": "N",
+            "AttributeName": "major", "AttributeType": "B"
+          }
         ],
         "KeySchema": [
-          {"AttributeName": "studentIDNumber", "KeyType": "HASH"},
-            {"AttributeName": "major", "KeyType": "RANGE"}
+          {
+            "AttributeName": "studentIDNumber", "KeyType": "HASH",
+            "AttributeName": "major", "KeyType": "RANGE"
+          }
         ],
         "ProvisionedThroughput": {
           "ReadCapacityUnits": 10,

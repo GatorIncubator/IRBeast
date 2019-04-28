@@ -3,7 +3,7 @@ import os
 import boto3
 from chalice import Chalice
 from chalicelib import db
-from chalicelib import rekognitionz
+from chalicelib import rekognition
 
 app = Chalice(app_name='IRBeast')
 
