@@ -17,23 +17,26 @@ class MinMaxCheck(Check):
             return super().accept()
 
     def valid(self):
-        return self.min_selections <= sum(
-            1 for c in self.checked if c) <= self.max_selections
+        return (
+            self.min_selections
+            <= sum(1 for c in self.checked if c)
+            <= self.max_selections
+        )
 
 
 def get_choices(file_path):
     file = open(file_path, "r")
     ret = [line.replace("\n", "") for line in file]
-    while ('' in ret):
+    while "" in ret:
         ret.remove("")
     return ret
 
 
 def display_checklist(choices):
     client = MinMaxCheck(
-        prompt="Select Everything You Have Done (spacebar)\n" +
-        "Press Enter When You Are Done Selecting",
+        prompt="Select Everything You Have Done (spacebar)\n"
+        + "Press Enter When You Are Done Selecting",
         choices=choices,
-        margin=2
+        margin=2,
     )
     return client.launch()

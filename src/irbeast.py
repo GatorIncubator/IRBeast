@@ -15,7 +15,7 @@ CHECKED = list()
 
 def repl_command():
     args = str(input(" >> ")).lower().split()
-    while (all(arg not in COMMANDS for arg in args)):
+    while all(arg not in COMMANDS for arg in args):
         print("Command Not Found")
         args = str(input(" >> ")).lower().split()
     return args
@@ -26,19 +26,18 @@ def login_user(username, password):
     # if not valid username/password:
     #   return False
     # else:
-    LOGIN_INFO['username'] = username
-    LOGIN_INFO['password'] = password
+    LOGIN_INFO["username"] = username
+    LOGIN_INFO["password"] = password
     return True
 
 
 def file():
-    CHECKLIST_FILE = "../checklists/" + \
-        str(input("Enter the name of the checklist file:\n")).strip()
+    CHECKLIST_FILE = (
+        "../checklists/" + str(input("Enter the name of the checklist file:\n")).strip()
+    )
     while not os.path.isfile(CHECKLIST_FILE):
         print("File not Found")
-        CHECKLIST_FILE = str(
-            input("Enter the path to the checklist file:\n")
-        )
+        CHECKLIST_FILE = str(input("Enter the path to the checklist file:\n"))
     return CHECKLIST_FILE
 
 
@@ -80,8 +79,7 @@ def main():
     # checks to see if there are any command line arguments passed
     # if so skip repl, otherwise launch repl
     if all(
-        getattr(args, arg) is None or
-        getattr(args, arg) is False for arg in vars(args)
+        getattr(args, arg) is None or getattr(args, arg) is False for arg in vars(args)
     ):
         print("Welcome to IRBeast")
         # TODO Get login details before entering repl
@@ -112,9 +110,7 @@ def main():
             args = repl_command()
     else:
         if arguments.verify(args):
-            if args.login is not False and login_user(
-                args.username, args.password
-            ):
+            if args.login is not False and login_user(args.username, args.password):
                 print("Logged In")
                 if args.checklist is not False:
                     if args.file is not None:
