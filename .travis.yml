@@ -1,0 +1,53 @@
+dist: xenial
+language: python
+python:
+  - "3.7"
+  - "3.6"
+
+cache:
+  directories:
+    - $HOME/.pip-cache/
+
+# ignore the virtualenv that Travis creates
+# setup a secure login to CodeCov
+env:
+  global:
+    - PIPENV_VENV_IN_PROJECT=1
+    - PIPENV_IGNORE_VIRTUALENVS=1
+    - LANG=en_US.UTF-8
+    - LC_ALL=en_US.UTF-8
+    - secure: TFE1pro1wLtA+1wC6bMgi0YjvTyirt4uTeWvSnWJ8pXX1EmWD7wfATiapC3W8Rnt+Tn5sEVIqwO8n8zdOfk1xmCa9ExDw6OFsvIw5J9SrSOmV/CDvGqxfRzOjcJdXvhS9rC5hIgVBRmrh8SBnZOmd9FgXQZi3WobPkzECEetZwPCViUuZpW//nThEG09pTfYMeG+CRuIegIj5DSkah7hDaOMqDaNLdWWszPjLYeMKyJQBkAbX3hYsJbTdnHWx4OI9AnG6bY9IPslMbDYjm4BTQw82oTKV74J94HrAWBmK5EL5j67+knNOztJtgEwcLx86zpX1zSIa0ZaNU9xN4r2LLcGzvl8swJLoeXovqPvmx9ivi7RnsUBGMrKVixNiM6D3Io8xPNx6TT334IbSa7Zhv+tjJrqbkYnQOMAoTcurFInZ1xGdtqkxEc5l1p0IVP813YJPpEXcT9TFGQW74q1tdwk0y28/BjKDr57cZagvBAC8X5Ej6A9YxgRqA1aCVWqRAyR9095q6Gi6xcAsOaxUs9UpyUXpPZD08cg7u5/Swfhln44LJaT6Zf6G4j0Wz4FjoUc4XmCGQLTRni/38FeG6sP7IV1xss2XaXuwv0BwhpVmWIELKXZyQEnTWeloOiuU1rmXTfAFx+tNy5rryvrCjk9cgp0ALth+KlxIUBJ3MQ=
+
+
+# install mdl for checking Markdown
+before_install:
+  - gem install mdl
+
+notifications:
+  email: never
+
+# command to install dependencies
+install:
+  - pip install --upgrade pip
+  - pip install --upgrade pipenv
+  - pipenv install --dev
+
+# perform testing:
+# --> run the test suite with pytest and codecov
+# --> Check for black format
+# --> lint the functions with flake8
+# --> lint the test suites with flake8
+# --> lint the functions with pylint
+# --> lint the test suites with pylint
+# --> lint the README documentation with mdl
+script:
+  - shopt -s globstar
+  - pipenv run pytest tests --cov-config pytest.cov --cov
+  - pipenv run black **/*.py --check
+  - pipenv run flake8 **/*.py
+  - pipenv run pylint **/*.py
+  - mdl README.md
+
+# report coverage information to CodeCov
+after_success:
+  - pipenv run codecov

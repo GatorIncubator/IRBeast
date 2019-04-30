@@ -5,13 +5,13 @@ verify_ssl = true
 
 [dev-packages]
 black = "*"
-pylint = "*"
 pytest = "*"
+pylint = "*"
+flake8 = "*"
 
 [packages]
 bullet = "*"
-flake8 = "*"
-pytest = "*"
+chalice = "*"
 
 [requires]
 python_version = "3.6"
