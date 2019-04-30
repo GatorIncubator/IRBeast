@@ -12,9 +12,10 @@ flake8 = "*"
 [packages]
 bullet = "*"
 chalice = "*"
-
-[requires]
-python_version = "3.6"
+pipenv-to-requirements = "*"
+boto3 = "*"
+awscli = "*"
+httpie = "*"
 
 [pipenv]
 allow_prereleases = true

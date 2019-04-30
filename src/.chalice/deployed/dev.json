@@ -1,0 +1,34 @@
+{
+  "resources": [
+    {
+      "name": "detect_labels_on_image_role",
+      "resource_type": "iam_role",
+      "role_arn": "arn:aws:iam::815839935244:role/media-query-dev-detect_labels_on_image",
+      "role_name": "media-query-dev-detect_labels_on_image"
+    },
+    {
+      "name": "detect_labels_on_image",
+      "resource_type": "lambda_function",
+      "lambda_arn": "arn:aws:lambda:us-east-1:815839935244:function:media-query-dev-detect_labels_on_image"
+    },
+    {
+      "name": "api_handler_role",
+      "resource_type": "iam_role",
+      "role_arn": "arn:aws:iam::815839935244:role/media-query-dev-api_handler",
+      "role_name": "media-query-dev-api_handler"
+    },
+    {
+      "name": "api_handler",
+      "resource_type": "lambda_function",
+      "lambda_arn": "arn:aws:lambda:us-east-1:815839935244:function:media-query-dev"
+    },
+    {
+      "name": "rest_api",
+      "resource_type": "rest_api",
+      "rest_api_id": "fhkfp887sg",
+      "rest_api_url": "https://fhkfp887sg.execute-api.us-east-1.amazonaws.com/api/"
+    }
+  ],
+  "schema_version": "2.0",
+  "backend": "api"
+}
