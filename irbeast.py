@@ -16,7 +16,6 @@ LOGIN_INFO = {"username": "", "password": ""}
 def repl_command():
     """gets user's input for command and checks against possible commands"""
     args = str(input(" >> ")).lower().split()
-    print(args)
     while all(arg not in COMMANDS for arg in args):
         print("Command Not Found")
         args = str(input(" >> ")).lower().split()
@@ -56,9 +55,13 @@ def checklist(checklist_file):
         return
     checked = bullet_manager.display_checklist(choices)
     try:
-        file = open("./submit/submission_checklist.txt", "x")
+        file = open(
+            "./submit/" + LOGIN_INFO["username"] + "_checklist.txt", "x"
+        )
     except FileExistsError:  # noqa: F821
-        file = open("./submit/submission_checklist.txt", "w")
+        file = open(
+            "./submit/" + LOGIN_INFO["username"] + "_checklist.txt", "w"
+        )
     for item in checked:
         file.write(item + "\n")
     file.close()
@@ -90,7 +93,11 @@ def submit(file_name=None):
         print(
             "Checklist:\n"
             + "\t"
-            + "\t".join(l for l in open("./submit/submission_checklist.txt"))
+            + "\t".join(
+                l for l in open(
+                    "./submit/" + LOGIN_INFO["username"] + "_checklist.txt"
+                )
+            )
         )
     except FileNotFoundError:  # noqa: F821
         print("Submission File Not Found, please run 'checklist'")
@@ -143,12 +150,13 @@ def main():
             args = repl_command()
     else:
         if arguments.verify(args):
-            if (args.login is not False and
-                    login_user(args.username, args.password)):
+            if args.login is not False and login_user(
+                    args.username, args.password
+            ):
                 print("Logged In")
                 if args.checklist is not False:
                     if args.file is not None:
-                        checklist(args.file)
+                        checklist("./checklists/" + args.file)
                     else:
                         print("Please Supply a Checklist File")
                 if args.submit is not None:

@@ -1,5 +1,5 @@
 """tests bullet_manager file"""
 
-import pytest
-
-from ../src/ import bullet_manager
+# import pytest
+#
+# from src import bullet_manager

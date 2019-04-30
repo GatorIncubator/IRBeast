@@ -9,8 +9,8 @@ FILE_DESCRIPTION = (
     + "contains the checklist to be completed"
 )
 LOGOUT_DESCRIPTION = (
-    "Allows the user to logout of the database to " +
-    "switch accounts"
+        "Allows the user to logout of the database to " +
+        "switch accounts"
 )
 CHECKLIST_DESCRIPTION = (
     "Allows the user to fill out the checklist " +
@@ -23,14 +23,24 @@ HELP_DESCRIPTION = (
     + "if a command is specified, that specific command"
 )
 
-FILE_INFO = {"command_name": "File", "description": FILE_DESCRIPTION}
-LOGOUT_INFO = {"command_name": "Logout", "description": LOGOUT_DESCRIPTION}
+FILE_INFO = {
+    "command_name": "File", "description": FILE_DESCRIPTION
+}
+LOGOUT_INFO = {
+    "command_name": "Logout", "description": LOGOUT_DESCRIPTION
+}
 CHECKLIST_INFO = {
     "command_name": "Checklist", "description": CHECKLIST_DESCRIPTION
 }
-SUBMIT_INFO = {"command_name": "Submit", "description": SUBMIT_DESCRIPTION}
-QUIT_INFO = {"command_name": "Quit", "description": QUIT_DESCRIPTION}
-HELP_INFO = {"command_name": "Help", "description": HELP_DESCRIPTION}
+SUBMIT_INFO = {
+    "command_name": "Submit", "description": SUBMIT_DESCRIPTION
+}
+QUIT_INFO = {
+    "command_name": "Quit", "description": QUIT_DESCRIPTION
+}
+HELP_INFO = {
+    "command_name": "Help", "description": HELP_DESCRIPTION
+}
 
 
 INFO = (

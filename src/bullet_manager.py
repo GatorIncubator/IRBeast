@@ -7,6 +7,7 @@ from bullet.charDef import NEWLINE_KEY
 # taken from bullet/examples/check.py
 class MinMaxCheck(Check):
     """Checklist object"""
+
     # pylint:  disable=W1113
     def __init__(self, min_selections=0, max_selections=None, *args, **kwargs):
         """initializes MinMaxCheck object"""

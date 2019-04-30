@@ -31,12 +31,15 @@ from src import arguments
         (
             [
                 "--login",
-                "--username", "user",
-                "--password", "pass",
-                "--submit", "test.txt"
+                "--username",
+                "user",
+                "--password",
+                "pass",
+                "--submit",
+                "test.txt",
             ]
-        )
-    ]
+        ),
+    ],
 )
 def test_verify(args):
     """checks if there is not a valid command line"""
@@ -50,8 +53,8 @@ def test_verify(args):
     [
         (["--login"]),
         (["--login", "--username", "user"]),
-        (["--login", "--password", "pass"])
-    ]
+        (["--login", "--password", "pass"]),
+    ],
 )
 def test_is_valid_login(args):
     """tests if there is not a valid login"""
@@ -61,8 +64,7 @@ def test_is_valid_login(args):
 
 
 @pytest.mark.parametrize(
-    "args",
-    [
+    "args", [
         (
             [
                 "--login",
@@ -91,7 +93,7 @@ def test_is_valid_checklist(args):
                 "--file", "test.txt"
             ]
         )
-    ]
+    ],
 )
 def test_is_valid_file(args):
     """tests if there is not a valid submission file"""
@@ -111,7 +113,7 @@ def test_is_valid_file(args):
                 "--submit", "test.txt"
             ]
         )
-    ]
+    ],
 )
 def test_is_valid_submit(args):
     """tests if there is not a valid submission file"""
