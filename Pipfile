@@ -15,6 +15,7 @@ chalice = "*"
 pipenv-to-requirements = "*"
 boto3 = "*"
 awscli = "*"
+httpie = "*"
 
 [pipenv]
 allow_prereleases = true
