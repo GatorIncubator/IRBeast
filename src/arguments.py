@@ -27,7 +27,7 @@ def parse(args):
         "--file", type=str, help="path to the file for the checklist"
     )
 
-    irb_parser.add_argument("--submit", type=str, help="path to the file(s) to submit")
+    irb_parser.add_argument("--submit", type=str, help="path to the file(s)")
 
     irb_arguments_finished = irb_parser.parse_args(args)
 

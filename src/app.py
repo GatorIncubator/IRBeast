@@ -8,7 +8,7 @@ from chalicelib import rekognition
 app = Chalice(app_name="IRBeast")
 
 _MEDIA_DB = None
-_REKOGNITION_CLIENT = None
+_RK_CLIENT = None
 
 
 @app.route("/")
@@ -30,18 +30,18 @@ def get_media_db():
     return _MEDIA_DB
 
 
-def get_rekognition_client():
-    global _REKOGNITION_CLIENT
-    if _REKOGNITION_CLIENT is None:
-        _REKOGNITION_CLIENT = rekognition.RekognitonClient(boto3.client("rekognition"))
-    return _REKOGNITION_CLIENT
+def get_RK_CLIENT():
+    global _RK_CLIENT
+    if _RK_CLIENT is None:
+        _RK_CLIENT = rekognition.RekognitonClient(boto3.client("rekognition"))
+    return _RK_CLIENT
 
 
 @app.lambda_function()
 def detect_labels_on_image(event, context):
     bucket = event["Bucket"]
     key = event["Key"]
-    labels = get_rekognition_client().get_image_labels(bucket=bucket, key=key)
+    labels = get_RK_CLIENT().get_image_labels(bucket=bucket, key=key)
     get_media_db().add_media_file(key, media_type=db.IMAGE_TYPE, labels=labels)
 
 

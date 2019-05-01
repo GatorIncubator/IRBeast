@@ -33,11 +33,11 @@ def login_user(username, password):
 
 def file():
     CHECKLIST_FILE = (
-        "../checklists/" + str(input("Enter the name of the checklist file:\n")).strip()
+        "../checklists/" + str(input("Name of the checklist file:\n")).strip()
     )
     while not os.path.isfile(CHECKLIST_FILE):
         print("File not Found")
-        CHECKLIST_FILE = str(input("Enter the path to the checklist file:\n"))
+        CHECKLIST_FILE = str(input("Path to the checklist file:\n"))
     return CHECKLIST_FILE
 
 
