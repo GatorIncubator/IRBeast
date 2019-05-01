@@ -55,10 +55,10 @@ def is_valid_file(args):
     if args.file is not None:
         try:
             open("./checklists/" + args.file)
+            return True
         except FileNotFoundError:  # noqa: F821
             print("File Not Found")
             return False
-        return True
     return False
 
 
@@ -72,10 +72,10 @@ def is_valid_submit(args):
     if args.submit is not None:
         try:
             open("./submit/" + args.submit)
+            return True
         except FileNotFoundError:  # noqa: F821
             print("File Not Found")
             return False
-        return True
     return False
 
 

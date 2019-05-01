@@ -72,3 +72,8 @@ IRBeast can also be run using the following command line arguments.
   possible submission.
 
 ## Testing IRBeast
+
+To run the test suite for IRBeast use the command `pipenv run pytest tests`. All
+code follows the flake8, pylint, and black style guides and to ensure that any
+code written adheres to these standards use the commands `pipenv run <style>`
+where `<style>` is replaced by whatever style guide you wish to check against.

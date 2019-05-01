@@ -3,8 +3,8 @@
 from __future__ import print_function
 import sys
 
-from src import arguments
-from src import utilities
+from beast import arguments
+from beast import utilities
 
 
 # pylint: disable=R0912

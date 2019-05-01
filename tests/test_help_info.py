@@ -1,7 +1,7 @@
 """tests help_info file"""
 
 
-from src import help_info
+from beast import help_info
 
 
 def test_get_help(capsys):

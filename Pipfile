@@ -9,6 +9,11 @@ bullet = "*"
 pytest = "*"
 pylint = "*"
 flake8 = "*"
+codecov = "*"
+codacy-coverage = "*"
+pytest-cov = "*"
+pytest-sugar = "*"
+mutmut = "*"
 
 [packages]
 chalice = "*"

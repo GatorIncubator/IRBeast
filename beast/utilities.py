@@ -3,8 +3,8 @@
 from __future__ import print_function
 import os
 
-from src import bullet_manager
-from src import help_info
+from beast import bullet_manager
+from beast import help_info
 
 
 COMMANDS = ["file", "logout", "checklist", "submit", "quit", "help"]
