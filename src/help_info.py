@@ -15,15 +15,15 @@ HELP_DESC = (
     + "if a command is specified, that specific command"
 )
 
-FILE_INFO = {"command_name": "File", "description": FILE_DESC}
-LOGOUT_INFO = {"command_name": "Logout", "description": LOGOUT_DESC}
-CHECKLIST_INFO = {"command_name": "Checklist", "description": CHECKLIST_DESC}
-SUBMIT_INFO = {"command_name": "Submit", "description": SUBMIT_DESC}
-QUIT_INFO = {"command_name": "Quit", "description": QUIT_DESC}
-HELP_INFO = {"command_name": "Help", "description": HELP_DESC}
+FILE_INFO = {"command": "File", "desc": FILE_DESC}
+LOGOUT_INFO = {"command": "Logout", "desc": LOGOUT_DESC}
+LIST_INFO = {"command": "Checklist", "desc": CHECKLIST_DESC}
+SUBMIT_INFO = {"command": "Submit", "desc": SUBMIT_DESC}
+QUIT_INFO = {"command": "Quit", "desc": QUIT_DESC}
+HELP_INFO = {"command": "Help", "desc": HELP_DESC}
 
 
-INFO = (FILE_INFO, LOGOUT_INFO, CHECKLIST_INFO, SUBMIT_INFO, QUIT_INFO, HELP_INFO)
+INFO = (FILE_INFO, LOGOUT_INFO, LIST_INFO, SUBMIT_INFO, QUIT_INFO, HELP_INFO)
 
 INFO_STRINGS = ("file", "logout", "checklist", "submit", "quit", "help")
 
@@ -32,13 +32,13 @@ def get_help(command=None):
     if command is None:
         for i in INFO:
             print(
-                "Command:", i["command_name"], "| Description:", i["description"], "\n"
+                "Command:", i["command"], "| Description:", i["desc"], "\n"
             )
     else:
         index = INFO_STRINGS.index(command.lower())
         print(
             "Command:",
-            INFO[index]["command_name"],
+            INFO[index]["command"],
             "| Description:",
-            INFO[index]["description"],
+            INFO[index]["desc"],
         )
