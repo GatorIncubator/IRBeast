@@ -34,4 +34,4 @@ def get_help(command=None):
             print("Command:", i["command"], "| Description:", i["desc"], "\n")
     else:
         index = INFO_STRINGS.index(command.lower())
-        print("Command:", INFO[index]["command"], "| Description:", INFO[index]["desc"])
+        print("Command:", INFO[index]["command"], "| Description:", INFO[index]["desc"])  # noqa: E501
