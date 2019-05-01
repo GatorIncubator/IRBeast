@@ -31,7 +31,9 @@ INFO_STRINGS = ("file", "logout", "checklist", "submit", "quit", "help")
 def get_help(command=None):
     if command is None:
         for i in INFO:
-            print("Command:", i["command"], "| Description:", i["desc"], "\n")
+            print("Command:", i["command"], "| Desc.:", i["desc"], "\n")
     else:
         index = INFO_STRINGS.index(command.lower())
-        print("Command:", INFO[index]["command"], "| Description:", INFO[index]["desc"])  # noqa: E501
+        print(
+            "Command:", INFO[index]["command"], "| Desc.:", INFO[index]["desc"]
+        )  # noqa: E501
