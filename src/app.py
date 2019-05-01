@@ -10,13 +10,16 @@ app = Chalice(app_name="IRBeast")
 _MEDIA_DB = None
 _REKOGNITION_CLIENT = None
 
+
 @app.route("/")
 def index():
     return {"hello": "world"}
 
-@app.route('/hello')
+
+@app.route("/hello")
 def hello_workshop():
-    return {'hello': 'workshop'}
+    return {"hello": "workshop"}
+
 
 def get_media_db():
     global _MEDIA_DB
@@ -40,9 +43,6 @@ def detect_labels_on_image(event, context):
     key = event["Key"]
     labels = get_rekognition_client().get_image_labels(bucket=bucket, key=key)
     get_media_db().add_media_file(key, media_type=db.IMAGE_TYPE, labels=labels)
-
-
-
 
 
 # The view function above will return {"hello": "world"}
