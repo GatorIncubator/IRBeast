@@ -79,7 +79,8 @@ def main():
     # checks to see if there are any command line arguments passed
     # if so skip repl, otherwise launch repl
     if all(
-        getattr(args, arg) is None or getattr(args, arg) is False for arg in vars(args)  # noqa: E501
+        getattr(args, arg) is None or getattr(args, arg) is False
+        for arg in vars(args)  # noqa: E501
     ):
         print("Welcome to IRBeast")
         # TODO Get login details before entering repl
@@ -110,7 +111,9 @@ def main():
             args = repl_command()
     else:
         if arguments.verify(args):
-            if args.login is not False and login_user(args.username, args.password):  # noqa: E501
+            if args.login is not False and login_user(
+                args.username, args.password
+            ):  # noqa: E501
                 print("Logged In")
                 if args.checklist is not False:
                     if args.file is not None:

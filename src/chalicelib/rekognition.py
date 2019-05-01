@@ -7,7 +7,8 @@ class RekognitonClient(object):
 
     def get_image_labels(self, bucket, key):
         response = self._boto3_client.detect_labels(
-            Image={"S3Object": {"Bucket": bucket, "Name": key}}, MinConfidence=50.0  # noqa: E501
+            Image={"S3Object": {"Bucket": bucket, "Name": key}},
+            MinConfidence=50.0,  # noqa: E501
         )
         return [label["Name"] for label in response["Labels"]]
 
@@ -15,7 +16,10 @@ class RekognitonClient(object):
         response = self._boto3_client.start_label_detection(
             Video={"S3Object": {"Bucket": bucket, "Name": key}},
             ClientRequestToken=str(uuid.uuid4()),
-            NotificationChannel={"SNSTopicArn": topic_arn, "RoleArn": role_arn},  # noqa: E501
+            NotificationChannel={
+                "SNSTopicArn": topic_arn,
+                "RoleArn": role_arn,
+            },  # noqa: E501
             MinConfidence=50.0,
         )
         return response["JobId"]

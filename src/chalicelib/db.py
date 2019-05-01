@@ -46,7 +46,9 @@ class DynamoMediaDB(MediaDB):
     def add_media_file(self, name, media_type, labels=None):
         if labels is None:
             labels = []
-        self._table.put_item(Item={"name": name, "type": media_type, "labels": labels})  # noqa: E501
+        self._table.put_item(
+            Item={"name": name, "type": media_type, "labels": labels}
+        )  # noqa: E501
 
     def get_media_file(self, name):
         response = self._table.get_item(Key={"name": name})
