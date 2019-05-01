@@ -3,6 +3,7 @@ import argparse
 
 
 def parse(args):
+    """Function to parse given arguments."""
     irb_parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
@@ -35,13 +36,12 @@ def parse(args):
 
 
 def is_valid_login(args):
-    if args.username is not None and args.password is not None:
-        return True
-    else:
-        return False
+    """Function to validate login credentials."""
+    return (args.username is not None) and (args.password is not None)
 
 
 def is_valid_file(args):
+    """Function to validate file existance."""
     if args.file is not None:
         try:
             open(args.file)
@@ -53,6 +53,7 @@ def is_valid_file(args):
 
 
 def is_valid_submit(args):
+    """Function to validate argument submission."""
     if args.submit is not None:
         try:
             open(args.submit)
@@ -64,12 +65,13 @@ def is_valid_submit(args):
 
 
 def verify(args):
+    """Function to call other validation functions"""
     verified = True
-    VALID_LOGIN = False
+    valid_login = False
     if args.login:
-        VALID_LOGIN = is_valid_login(args)
+        valid_login = is_valid_login(args)
     if args.file:
         verified = is_valid_file(args)
     # if args.submit:
     #     verified = is_valid_submit(args)
-    return VALID_LOGIN and verified
+    return valid_login and verified
