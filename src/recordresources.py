@@ -13,23 +13,23 @@ def record_as_env_var(stack_name, stage):
     response = cloudformation.describe_stacks(StackName=stack_name)
     outputs = response["Stacks"][0]["Outputs"]
     with open(os.path.join(".chalice", "config.json")) as conf_file:
-        d = json.load(conf_file)
-        d["stages"].setdefault(stage, {}).setdefault("environment_vars", {})
+        data = json.load(conf_file)
+        data["stages"].setdefault(stage, {}).setdefault("environment_vars", {})
         for output in outputs:
-            d["stages"][stage]["environment_vars"][
+            data["stages"][stage]["environment_vars"][
                 _to_env_var_name(output["OutputKey"])
             ] = output["OutputValue"]
     with open(os.path.join(".chalice", "config.json"), "w") as conf_file:
-        serialized = json.dumps(d, indent=2, separators=(",", ": "))
+        serialized = json.dumps(data, indent=2, separators=(",", ": "))
         conf_file.write(serialized + "\n")
-        d["stages"].setdefault(stage, {})
-        d["stages"].setdefault("environment_variables", {})
+        data["stages"].setdefault(stage, {})
+        data["stages"].setdefault("environment_variables", {})
         for output in outputs:
-            d["stages"][stage]["environment_variables"][
+            data["stages"][stage]["environment_variables"][
                 _to_env_var_name(output["OutputKey"])
             ] = output["OutputValue"]
     with open(os.path.join(".chalice", "config.json"), "w") as conf_file:
-        serialized = json.dumps(d, indent=2, separators=(",", ": "))
+        serialized = json.dumps(data, indent=2, separators=(",", ": "))
         conf_file.write(serialized + "\n")
 
 
