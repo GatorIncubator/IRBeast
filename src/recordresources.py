@@ -14,7 +14,6 @@ def record_as_env_var(stack_name, stage):
     outputs = response['Stacks'][0]['Outputs']
     with open(os.path.join('.chalice', 'config.json')) as f:
         data = json.load(f)
-<<<<<<< HEAD
         data["stages"].setdefault(stage, {}).setdefault("environment_vars", {})
         for output in outputs:
             data["stages"][stage]["environment_vars"][
@@ -23,7 +22,6 @@ def record_as_env_var(stack_name, stage):
     with open(os.path.join(".chalice", "config.json"), "w") as f:
         serialized = json.dumps(data, indent=2, separators=(",", ": "))
         f.write(serialized + "\n")
-=======
         data['stages'].setdefault(stage, {}).setdefault(
             'environment_variables', {}
         )
@@ -33,7 +31,6 @@ def record_as_env_var(stack_name, stage):
     with open(os.path.join('.chalice', 'config.json'), 'w') as f:
         serialized = json.dumps(data, indent=2, separators=(',', ': '))
         f.write(serialized + '\n')
->>>>>>> 23adbc5467e07b89f6e0f82e21aa32836bfa71eb
 
 
 def _to_env_var_name(name):
