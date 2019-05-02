@@ -7,9 +7,9 @@ from chalicelib import db
 import boto3
 from chalice import Chalice
 
-app = Chalice(app_name='media-query')
+APP = Chalice(app_name='media-query')
 
-@app.route('/')
+@APP.route('/')
 def index():
     return {'hello': 'world'}
 
