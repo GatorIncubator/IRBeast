@@ -4,7 +4,10 @@
   "stages": {
     "dev": {
       "api_gateway_stage": "api",
-      "autogen_policy": false
+      "environment_variables": {
+        "MEDIA_TABLE_NAME": "media-query-MediaTable-GMO042ACT1UQ",
+        "MEDIA_BUCKET_NAME": "media-query-mediabucket-ufmepunm7b4"
+      }
     }
   }
 }
