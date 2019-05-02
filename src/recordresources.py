@@ -1,3 +1,4 @@
+"""Module to record AWS Chalice resources"""
 import argparse
 import json
 import os
@@ -7,26 +8,38 @@ from botocore import xform_name
 
 
 def record_as_env_var(stack_name, stage):
+    """Function to gather record resources"""
     cloudformation = boto3.client("cloudformation")
     response = cloudformation.describe_stacks(StackName=stack_name)
     outputs = response["Stacks"][0]["Outputs"]
-    with open(os.path.join(".chalice", "config.json")) as f:
-        data = json.load(f)
-        data["stages"].setdefault(stage, {}).setdefault("environment_variables", {})
+    with open(os.path.join(".chalice", "config.json")) as conf_file:
+        data = json.load(conf_file)
+        data["stages"].setdefault(stage, {}).setdefault("environment_vars", {})
+        for output in outputs:
+            data["stages"][stage]["environment_vars"][
+                _to_env_var_name(output["OutputKey"])
+            ] = output["OutputValue"]
+    with open(os.path.join(".chalice", "config.json"), "w") as conf_file:
+        serialized = json.dumps(data, indent=2, separators=(",", ": "))
+        conf_file.write(serialized + "\n")
+        data["stages"].setdefault(stage, {})
+        data["stages"].setdefault("environment_variables", {})
         for output in outputs:
             data["stages"][stage]["environment_variables"][
                 _to_env_var_name(output["OutputKey"])
             ] = output["OutputValue"]
-    with open(os.path.join(".chalice", "config.json"), "w") as f:
+    with open(os.path.join(".chalice", "config.json"), "w") as conf_file:
         serialized = json.dumps(data, indent=2, separators=(",", ": "))
-        f.write(serialized + "\n")
+        conf_file.write(serialized + "\n")
 
 
 def _to_env_var_name(name):
+    """To get appropriate environment variable names."""
     return xform_name(name).upper()
 
 
 def main():
+    """Main function to execute environment variable recordings."""
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--stage", default="dev")
     parser.add_argument("--stack-name", required=True)

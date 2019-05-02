@@ -1,10 +1,12 @@
+"""The IRBeast System."""
 import sys
 import os
 
 
-import arguments
 import bullet_manager
 import help_info
+import arguments
+from arguments import is_valid_login
 
 
 COMMANDS = ["file", "logout", "checklist", "submit", "quit", "help"]
@@ -14,6 +16,7 @@ CHECKED = list()
 
 
 def repl_command():
+    """Function to capture user commands."""
     args = str(input(" >> ")).lower().split()
     while all(arg not in COMMANDS for arg in args):
         print("Command Not Found")
@@ -22,43 +25,46 @@ def repl_command():
 
 
 def login_user(username, password):
-    # TODO Check to ensure valid username and password
-    # if not valid username/password:
-    #   return False
-    # else:
-    LOGIN_INFO["username"] = username
-    LOGIN_INFO["password"] = password
+    """Function to check to ensure valid username and password"""
+    if not is_valid_login([username, password]):
+        return False
     return True
 
 
 def file():
-    CHECKLIST_FILE = (
-        "../checklists/" + str(input("Enter the name of the checklist file:\n")).strip()
+    """Function to open the checklist file."""
+    checklist_file = (
+        "../checklists/" + str(input("Name of the checklist file:\n")).strip()
     )
-    while not os.path.isfile(CHECKLIST_FILE):
+    while not os.path.isfile(checklist_file):
         print("File not Found")
-        CHECKLIST_FILE = str(input("Enter the path to the checklist file:\n"))
-    return CHECKLIST_FILE
+        checklist_file = str(input("Path to the checklist file:\n"))
+    return checklist_file
 
 
-def checklist(CHECKLIST_FILE):
+def checklist(checklist_file):
+    """Function to manage the checklist."""
     choices = list()
-    if CHECKLIST_FILE != "":
-        choices = bullet_manager.get_choices(CHECKLIST_FILE)
+    if checklist_file != "":
+        choices = bullet_manager.get_choices(checklist_file)
     else:
         print("Please run 'File' to specify the checklist file")
         return
+    # pylint: disable=global-statement
+    global CHECKED
     CHECKED = bullet_manager.display_checklist(choices)
     try:
-        f = open("submission_checklist.txt", "x")
+        check_file = open("submission_checklist.txt", "x")
     except FileExistsError:  # noqa: F821
-        f = open("submission_checklist.txt", "w")
+        check_file = open("submission_checklist.txt", "w")
     for item in CHECKED:
-        f.write(item + "\n")
-    f.close()
+        check_file.write(item + "\n")
+    check_file.close()
 
 
+# pylint: disable=redefined-builtin
 def help(args):
+    """Function to capture and execute help command."""
     if len(args) == 1:
         help_info.get_help()
     elif len(args) == 2:
@@ -66,23 +72,31 @@ def help(args):
 
 
 def submit():
-    # Code for checking name of the pdf proposal
-    # to ensure correct format
-    # Code for uploading to database using user's login info
+    """
+    Code for checking name of the pdf proposal to ensure correct format and
+    uploading to database using user's login info print("Submitting Info")
+    """
     print("Submitting Info")
 
 
+# pylint: disable=too-many-branches
 def main():
+    """The main function of the IRBeast program."""
+    # pylint: disable=global-statement
+    global LOGGED_IN
     LOGGED_IN = False
-    CHECKLIST_FILE = ""
+    checklist_file = ""
     args = arguments.parse(sys.argv[1:])
     # checks to see if there are any command line arguments passed
     # if so skip repl, otherwise launch repl
     if all(
-        getattr(args, arg) is None or getattr(args, arg) is False for arg in vars(args)
+        # pylint: disable=bad-continuation
+        getattr(args, arg) is None or getattr(args, arg) is False
+        # pylint: disable=bad-continuation
+        for arg in vars(args)
     ):
         print("Welcome to IRBeast")
-        # TODO Get login details before entering repl
+        # Get login details before entering repl
         while not LOGGED_IN:
             username = str(input("Username: "))
             password = str(input("Password: "))
@@ -90,9 +104,9 @@ def main():
         args = repl_command()
         while args[0] != "quit" and LOGGED_IN:
             if args[0] == "file":
-                CHECKLIST_FILE = file()
+                checklist_file = file()
             elif args[0] == "checklist":
-                checklist(CHECKLIST_FILE)
+                checklist(checklist_file)
             elif args[0] == "logout":
                 print("Logging user out")
                 LOGGED_IN = False
@@ -110,7 +124,11 @@ def main():
             args = repl_command()
     else:
         if arguments.verify(args):
-            if args.login is not False and login_user(args.username, args.password):
+            if args.login is not False and login_user(
+                # pylint: disable=bad-continuation
+                args.username,
+                args.password,
+            ):
                 print("Logged In")
                 if args.checklist is not False:
                     if args.file is not None:
@@ -127,4 +145,5 @@ def main():
             sys.exit()
 
 
-main()
+if __name__ == "__main__":
+    main()

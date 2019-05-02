@@ -2,12 +2,12 @@
   "Outputs": {
     "MediaBucketName": {
       "Value": {
-        "Ref": "irbBucket"
+        "Ref": "MediaBucket"
       }
     },
     "MediaTableName": {
       "Value": {
-        "Ref": "irbTable"
+        "Ref": "MediaTable"
       }
     }
   },
@@ -19,19 +19,19 @@
       "Properties": {
         "AttributeDefinitions": [
           {
-            "AttributeName": "studentIDNumber", "AttributeType": "N",
-            "AttributeName": "major", "AttributeType": "B"
+            "AttributeName": "name",
+            "AttributeType": "S"
           }
         ],
         "KeySchema": [
           {
-            "AttributeName": "studentIDNumber", "KeyType": "HASH",
-            "AttributeName": "major", "KeyType": "RANGE"
+            "AttributeName": "name",
+            "KeyType": "HASH"
           }
         ],
         "ProvisionedThroughput": {
-          "ReadCapacityUnits": 10,
-          "WriteCapacityUnits": 10
+          "ReadCapacityUnits": 5,
+          "WriteCapacityUnits": 5
         }
       },
       "Type": "AWS::DynamoDB::Table"
