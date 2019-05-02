@@ -3,14 +3,16 @@ The APP module handles functionality for connecting to the
 AWS Chalice database.
 """
 import os
-from chalicelib import db
 import boto3
 from chalice import Chalice
+from chalicelib import db
 
+_MEDIA_DB = None
 APP = Chalice(app_name='media-query')
 
 @APP.route('/')
 def index():
+    """Index function of app, to be deprecated."""
     return {'hello': 'world'}
 
 
