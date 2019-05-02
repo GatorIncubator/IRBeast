@@ -6,8 +6,9 @@ IMAGE_TYPE = "image"
 VIDEO_TYPE = "video"
 
 
-class DynamoMediaDB():
+class DynamoMediaDB:
     """The Dynamo media object"""
+
     def __init__(self, table_resource):
         """Constructor for DynamoMediaDB"""
         self._table = table_resource

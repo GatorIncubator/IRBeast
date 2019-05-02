@@ -6,6 +6,7 @@ from bullet.charDef import NEWLINE_KEY
 # taken from bullet/examples/check.py
 class MinMaxCheck(Check):
     """Class to manage the most and least checks that can be made."""
+
     # pylint: disable=keyword-arg-before-vararg
     def __init__(self, min_selections=0, max_selections=None, *args, **kwargs):
         super().__init__(*args, **kwargs)

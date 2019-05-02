@@ -30,6 +30,7 @@ def login_user(username, password):
         return False
     return True
 
+
 def file():
     """Function to open the checklist file."""
     checklist_file = (
@@ -77,6 +78,7 @@ def submit():
     """
     print("Submitting Info")
 
+
 # pylint: disable=too-many-branches
 def main():
     """The main function of the IRBeast program."""
@@ -88,8 +90,8 @@ def main():
     # checks to see if there are any command line arguments passed
     # if so skip repl, otherwise launch repl
     if all(
-            getattr(args, arg) is None or getattr(args, arg) is False
-            for arg in vars(args)  # noqa: E501
+        getattr(args, arg) is None or getattr(args, arg) is False
+        for arg in vars(args)  # noqa: E501
     ):
         print("Welcome to IRBeast")
         # Get login details before entering repl
@@ -121,7 +123,7 @@ def main():
     else:
         if arguments.verify(args):
             if args.login is not False and login_user(
-                    args.username, args.password
+                args.username, args.password
             ):  # noqa: E501
                 print("Logged In")
                 if args.checklist is not False:
@@ -137,6 +139,7 @@ def main():
         else:
             print("Missing Command Line Arguments")
             sys.exit()
+
 
 if __name__ == "__main__":
     main()
