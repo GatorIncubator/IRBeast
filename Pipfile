@@ -17,6 +17,11 @@ mutmut = "*"
 
 [packages]
 chalice = "*"
+pipenv-to-requirements = "*"
+boto3 = "*"
+awscli = "*"
+httpie = "*"
+pytest-cov = "*"
 
-[requires]
-python_version = "3.6"
+[pipenv]
+allow_prereleases = true

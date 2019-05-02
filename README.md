@@ -8,9 +8,9 @@
 [![code-style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 ![license-mit](https://img.shields.io/github/license/GatorEducator/IRBeast.svg)
 
-IRBeast is a software tool developed to help student researchers ensure that they
-create a successful IRB proposal. Use this tool to make an awesome IRB proposal
-document and become an IRBeast!
+IRBeast is a software tool developed to help student researchers ensure that
+they create a successful IRB proposal. Use this tool to make an awesome IRB
+proposal document and become an IRBeast!
 
 ## Installing IRBeast
 
