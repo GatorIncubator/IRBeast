@@ -1,3 +1,4 @@
+"""Module provides information about command-line usage."""
 # COMMANDS = ["file","logout","checklist","submit","quit","help"]
 
 FILE_DESC = (
@@ -29,6 +30,7 @@ INFO_STRINGS = ("file", "logout", "checklist", "submit", "quit", "help")
 
 
 def get_help(command=None):
+    """Function that displays help information for each command."""
     if command is None:
         for i in INFO:
             print("Command:", i["command"], "| Desc.:", i["desc"], "\n")
