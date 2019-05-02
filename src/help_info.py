@@ -5,9 +5,9 @@ FILE_DESC = (
     "Allows the user to input the name of the file that "
     + "contains the checklist to be completed"
 )
-LOGOUT_DESC = "Allows for logging out of the database " + "switch accounts"
+LOGOUT_DESC = "Allows for logging out of the database to switch accounts"
 CHECKLIST_DESC = (
-    "Allows for filling out the checklist " + "supplied via the 'File' command"
+    "Allows for filling out the checklist supplied via the 'File' command"
 )
 SUBMIT_DESC = "Submits the completed checklist and IRB proposal file"
 QUIT_DESC = "Quits IRBeast"

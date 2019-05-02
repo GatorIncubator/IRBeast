@@ -3,7 +3,7 @@
 # pylint: disable=E0401
 import pytest
 
-from beast import arguments
+from src import arguments
 
 
 @pytest.mark.parametrize(

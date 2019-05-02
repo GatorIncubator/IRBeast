@@ -1,6 +1,6 @@
 """tests irbeast file"""
 
-from beast import utilities
+from src import utilities
 
 
 def test_repl_command():
