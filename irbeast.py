@@ -10,7 +10,7 @@ from src import utilities
 # pylint: disable=too-many-branches
 def main():
     """The main function of the IRBeast program."""
-    # pylint: disable=global-statement
+    # pylint: disable=W0601
     global LOGGED_IN
     LOGGED_IN = False
     checklist_file = ""
@@ -28,31 +28,31 @@ def main():
         while not LOGGED_IN:
             username = str(input("Username: "))
             password = str(input("Password: "))
-            LOGGED_IN = login_user(username, password)
-        args = repl_command()
+            LOGGED_IN = utilities.login_user(username, password)
+        args = utilities.repl_command()
         while args[0] != "quit" and LOGGED_IN:
             if args[0] == "file":
-                checklist_file = file()
+                checklist_file = utilities.get_file()
             elif args[0] == "checklist":
-                checklist(checklist_file)
+                utilities.checklist(checklist_file)
             elif args[0] == "logout":
                 print("Logging user out")
                 LOGGED_IN = False
                 while not LOGGED_IN:
                     username = str(input("Username: "))
                     password = str(input("Password: "))
-                    LOGGED_IN = login_user(username, password)
+                    LOGGED_IN = utilities.login_user(username, password)
             elif args[0] == "submit":
-                submit()
+                utilities.submit()
             elif args[0] == "help":
-                help(args)
+                utilities.help(args)
             elif args[0] == "quit":
                 print("Thank You")
                 sys.exit()
-            args = repl_command()
+            args = utilities.repl_command()
     else:
         if arguments.verify(args):
-            if args.login is not False and login_user(
+            if args.login is not False and utilities.login_user(
                 # pylint: disable=bad-continuation
                 args.username,
                 args.password,
@@ -60,11 +60,11 @@ def main():
                 print("Logged In")
                 if args.checklist is not False:
                     if args.file is not None:
-                        checklist(args.file)
+                        utilities.checklist(args.file)
                     else:
                         print("Please Supply a Checklist File")
                 if args.submit is not None:
-                    submit()
+                    utilities.submit()
             else:
                 print("Invalid Login Info")
                 sys.exit()

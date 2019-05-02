@@ -43,7 +43,7 @@ def get_choices(file_path):
 
 def display_checklist(choices):
     """Function to display the checklist to the user."""
-    client = MinMaxCheck(
+    client = ChecklistChecks(
         prompt="Select Everything You Have Done (spacebar)\n"
         + "Press Enter When You Are Done Selecting",
         choices=choices,
