@@ -16,6 +16,7 @@ pipenv-to-requirements = "*"
 boto3 = "*"
 awscli = "*"
 httpie = "*"
+pytest-cov = "*"
 
 [pipenv]
 allow_prereleases = true
